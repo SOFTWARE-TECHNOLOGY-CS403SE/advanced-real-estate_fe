@@ -1,7 +1,8 @@
 import axios from "axios";
 import queryString from "query-string";
 
-const baseURL = `http://localhost:8080`;
+// const baseURL = `http://localhost:8080`;
+const baseURL = `http://192.168.7.114:8080`;
 
 const axiosClient = axios.create({
     baseURL: baseURL,
@@ -10,9 +11,12 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(async (config) => {
     const accesstoken = localStorage.getItem(config.nameToken) || '';
-
+    var parsedData = '';
+    if(config.nameToken !== '') {
+        parsedData = JSON.parse(accesstoken).token;
+    }
     config.headers = {
-        Authorization: accesstoken ? `Bearer ${accesstoken}` : "",
+        Authorization: accesstoken ? `Bearer ${parsedData}` : "",
         Accept: "application/json",
         ...config.headers,
     };

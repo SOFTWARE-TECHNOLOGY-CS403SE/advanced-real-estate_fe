@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Khởi tạo state ban đầu
 const initialState = {
-    token: null, // Token người dùng sau khi đăng nhập
-    role: null, // Vai trò của người dùng ('admin' hoặc 'client')
+    token: '', // Token người dùng sau khi đăng nhập
+    role: '', // Vai trò của người dùng ('admin' hoặc 'client')
 };
 
 // Tạo slice cho auth
@@ -16,8 +16,11 @@ const authSlice = createSlice({
             state.role = action.payload.role;
         },
         removeAuth: (state) => {
-            state.token = null;
-            state.role = null;
+            state.token = '';
+            state.role = '';
+        },
+        refreshtoken: (state, action) => {
+            state.token = action.payload.token;
         },
     },
 });
@@ -27,4 +30,4 @@ export const { addAuth, removeAuth } = authSlice.actions;
 export default authSlice.reducer;
 
 // Selector để lấy trạng thái auth
-export const authSeletor = (state) => state.auth;
+export const authSelector = (state) => state.auth;

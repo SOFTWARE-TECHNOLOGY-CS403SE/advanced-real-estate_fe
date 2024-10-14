@@ -26,3 +26,9 @@ code {
   justify-content: center;
   align-items: center;
 }
+
+.custom-table .ant-table-container .ant-table-body,
+.custom-table .ant-table-container .ant-table-content {
+    scrollbar-width: thin;
+    scrollbar-color: unset;
+}
