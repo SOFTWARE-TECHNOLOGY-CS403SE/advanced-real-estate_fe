@@ -22,17 +22,13 @@ const Login = () => {
             console.log(res);
             if (res.code === 1000) {
                 message.success("Đã đăng nhập thành công!");
-
                 // Lưu thông tin xác thực vào localStorage
                 const authData = {
                     token: res.result.token,
                     role: "admin" // Lưu role vào auth (admin hoặc client)
                 };
-                localStorage.setItem("admin", JSON.stringify(authData));
-
                 // Dispatch action để lưu vào Redux store
                 dispatch(addAuth(authData));
-
                 // Điều hướng về trang /admin ngay lập tức
                 navigate("/admin");
             }

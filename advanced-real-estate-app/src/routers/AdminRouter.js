@@ -8,6 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { addAuth, authSelector } from "../redux/reducers/authReducer";
 import { Login } from "../screens";
 import { useEffect, useState } from "react";
+import UserScreen from "../screens/admin/UserScreen";
+import BuildingScreen from "../screens/admin/BuildingScreen";
+import MapScreen from "../screens/admin/MapScreen";
 
 const { Content, Footer } = Layout;
 
@@ -15,6 +18,10 @@ function AdminRouter() {
     const auth = useSelector(authSelector);
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(true); // Trạng thái để kiểm soát hiển thị khi đang tải dữ liệu
+
+    useEffect(() => {
+        console.log(auth);
+    }, []);
 
     useEffect(() => {
         if (!auth.token) {
@@ -25,12 +32,7 @@ function AdminRouter() {
     }, [auth.token]);
 
     const getData = async () => {
-        const res = localStorage.getItem("admin");
-        if (res) {
-            // Dispatch để lưu token và role vào Redux store
-            const parsedData = JSON.parse(res);
-            dispatch(addAuth(parsedData));
-        }
+        dispatch(addAuth(auth));
         setIsLoading(false);
     };
 
@@ -60,7 +62,10 @@ function AdminRouter() {
                 <Content className="pt-3 container-fluid">
                     <Routes>
                         <Route path="" element={<AdminScreen />} />
+                        <Route path="user" element={<UserScreen />} />
+                        <Route path="building" element={<BuildingScreen />} />
                         <Route path="service" element={<ServiceScreen />} />
+                        <Route path="map" element={<MapScreen />} />
                     </Routes>
                 </Content>
                 <Footer className="bg-white" />

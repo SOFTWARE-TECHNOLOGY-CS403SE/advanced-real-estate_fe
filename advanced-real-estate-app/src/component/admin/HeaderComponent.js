@@ -15,23 +15,17 @@ const HeaderComponent = () => {
             key: 'logout',
             label: 'Đăng xuất',
             onClick: async () => {
-                const adminData = localStorage.getItem("admin");
-                const parsedData = JSON.parse(adminData); // Chuyển chuỗi JSON thành đối tượng
-                const token = parsedData.token; // Lấy giá trị token từ đối tượng
-
+                const token = user?.token;
                 const payload = {
                     token: token
                 };
-                
                 try {
                     // Gọi API để đăng xuất
-                    const res = await handleAPI('/api/auth/logout', payload, 'post', 'admin');
+                    const res = await handleAPI('/api/auth/logout', payload, 'post');
                     if (res.code === 1000) {
                         // Thông báo đăng xuất thành công
                         message.success('Đăng xuất thành công!');
-                        
-                        // Xóa thông tin khỏi localStorage
-                        localStorage.removeItem('admin');
+
                         // Dispatch action để lưu vào Redux store
                         dispatch(removeAuth());
                         // Điều hướng đến trang đăng nhập
@@ -42,7 +36,8 @@ const HeaderComponent = () => {
                     }
                 } catch (error) {
                     // Thông báo nếu có lỗi xảy ra khi gọi API
-                    message.error('Có lỗi xảy ra khi đăng xuất!');
+                    console.error("error: ", error)
+                    message.error(error.message);
                 }
             },
         },
