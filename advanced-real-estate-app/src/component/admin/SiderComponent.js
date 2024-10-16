@@ -30,12 +30,27 @@ const SiderComponent = () => {
     const items = [
         {
             key: 'admin',
-            label: <Link to={'/admin'}>Quản Lý Admin</Link>,
+            label: <Link to={'/admin'}>Quản Lý quản trị viên</Link>,
+            icon: <Home2 size={20} />,
+        },
+        {
+            key: 'user',
+            label: <Link to={'/admin/user'}>Quản Lý người dùng</Link>,
+            icon: <Home2 size={20} />,
+        },
+        {
+            key: 'building',
+            label: <Link to={'/admin/building'}>Quản Lý tòa nhà</Link>,
             icon: <Home2 size={20} />,
         },
         {
             key: 'service',
-            label: <Link to={'/admin/service'}>Quản Lý Service</Link>,
+            label: <Link to={'/admin/service'}>Quản Lý dịch vụ</Link>,
+            icon: <Home2 size={20} />,
+        },
+        {
+            key: 'map',
+            label: <Link to={'/admin/map'}>Quản Lý bản đồ</Link>,
             icon: <Home2 size={20} />,
         },
         // {

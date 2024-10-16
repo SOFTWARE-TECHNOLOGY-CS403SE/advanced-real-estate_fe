@@ -2,8 +2,9 @@ import React from "react";
 import Routers from "./routers/Routers";
 import "./index.css";
 import { ConfigProvider } from "antd";
-import store from "./redux/store";
+import {persistor, store} from "./redux/store";
 import { Provider } from "react-redux";
+import {PersistGate} from "redux-persist/integration/react";
 function App() {
     return (
         <>
@@ -14,7 +15,9 @@ function App() {
                 }}
             >
                 <Provider store={store}>
-                    <Routers />
+                    <PersistGate loading={null} persistor={persistor}>
+                        <Routers />
+                    </PersistGate>
                 </Provider>
             </ConfigProvider>
         </>
