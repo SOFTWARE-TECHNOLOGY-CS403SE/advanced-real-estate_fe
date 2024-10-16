@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Affix, Layout, Spin } from "antd";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { FooterComponent, HeaderComponent, SiderComponent } from "../component";
 import AdminScreen from "./../screens/admin/AdminScreen";
 import ServiceScreen from "./../screens/admin/ServiceScreen";
@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import UserScreen from "../screens/admin/UserScreen";
 import BuildingScreen from "../screens/admin/BuildingScreen";
 import MapScreen from "../screens/admin/MapScreen";
+import PrivateRoute from "./PrivateRoute";
 
 const { Content } = Layout;
 
@@ -18,6 +19,7 @@ function AdminRouter() {
     const auth = useSelector(authSelector);
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(true); // Trạng thái để kiểm soát hiển thị khi đang tải dữ liệu
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(auth);
@@ -25,8 +27,12 @@ function AdminRouter() {
 
     useEffect(() => {
         if (!auth.token) {
+            navigate("/admin/login");
             getData();
         } else {
+            if (window.location.pathname === "/admin/login") {
+                navigate("/admin"); // Điều hướng đến /admin nếu đã đăng nhập và cố truy cập /admin/login
+            }
             setIsLoading(false);
         }
     }, [auth.token]);
@@ -68,15 +74,50 @@ function AdminRouter() {
                 </Affix>
                 <Content className="pt-3 container-fluid">
                     <Routes>
-                        <Route path="" element={<AdminScreen />} />
-                        <Route path="user" element={<UserScreen />} />
-                        <Route path="building" element={<BuildingScreen />} />
-                        <Route path="service" element={<ServiceScreen />} />
-                        <Route path="map" element={<MapScreen />} />
+                        <Route
+                            path=""
+                            element={
+                                <PrivateRoute path="/admin">
+                                    <AdminScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="user"
+                            element={
+                                <PrivateRoute path="/admin/user">
+                                    <UserScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="building"
+                            element={
+                                <PrivateRoute path="/admin/building">
+                                    <BuildingScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="service"
+                            element={
+                                <PrivateRoute path="/admin/service">
+                                    <ServiceScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="map"
+                            element={
+                                <PrivateRoute path="/admin/map">
+                                    <MapScreen />
+                                </PrivateRoute>
+                            }
+                        />
                     </Routes>
                 </Content>
                 <Affix offsetTop={0}>
-                    <FooterComponent/>
+                    <FooterComponent />
                 </Affix>
             </Layout>
         </Layout>

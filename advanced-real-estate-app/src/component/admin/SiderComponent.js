@@ -4,77 +4,74 @@ import { Home2, Map1, House, Profile2User, User, TruckTick } from "iconsax-react
 import { Link } from "react-router-dom";
 import { appInfo } from "../../constants/appInfos";
 import { colors } from "../../constants/colors";
-import { useState, useEffect, useRef } from "react"; // Thêm useRef
+import { useState, useRef } from "react"; // Thêm useRef
+import { useSelector } from "react-redux";
+import { authSelector } from "../../redux/reducers/authReducer";
 
 const { Sider } = Layout;
 const { Text } = Typography;
 
 const SiderComponent = () => {
+    const path = '/admin';
     const siderRef = useRef(); // Tạo ref cho Sider
+    const auth = useSelector(authSelector); // Lấy thông tin auth từ Redux
 
+    // Định nghĩa các mục menu và URL của chúng
     const items = [
         {
             key: "admin",
             label: (
-                <Link style={{ textDecoration: "none" }} to={"/admin"}>
+                <Link style={{ textDecoration: "none" }} to={path}>
                     Quản Lý quản trị viên
                 </Link>
             ),
             icon: <Profile2User size={20} />,
+            url: path, // Đường dẫn cần kiểm tra quyền truy cập
         },
         {
             key: "user",
             label: (
-                <Link style={{ textDecoration: "none" }} to={"/admin/user"}>
+                <Link style={{ textDecoration: "none" }} to={path + "/user"}>
                     Quản Lý người dùng
                 </Link>
             ),
             icon: <User size={20} />,
+            url: path + "/user",
         },
         {
             key: "building",
             label: (
-                <Link style={{ textDecoration: "none" }} to={"/admin/building"}>
+                <Link style={{ textDecoration: "none" }} to={path + "/building"}>
                     Quản Lý tòa nhà
                 </Link>
             ),
-            icon: <
-            House size={20} />,
+            icon: <House size={20} />,
+            url: path + "/building",
         },
         {
             key: "service",
             label: (
-                <Link style={{ textDecoration: "none" }} to={"/admin/service"}>
+                <Link style={{ textDecoration: "none" }} to={path + "/service"}>
                     Quản Lý dịch vụ
                 </Link>
             ),
             icon: <TruckTick size={20} />,
+            url: path + "/service",
         },
         {
             key: "map",
             label: (
-                <Link style={{ textDecoration: "none" }} to={"/admin/map"}>
+                <Link style={{ textDecoration: "none" }} to={path + "/map"}>
                     Quản Lý bản đồ
                 </Link>
             ),
             icon: <Map1 size={20} />,
+            url: path + "/map",
         },
-        // {
-        //     key: 'inventory',
-        //     label: 'Inventory',
-        //     icon: <MdOutlineInventory size={20} />,
-        //     children: [
-        //         {
-        //             key: 'inventory',
-        //             label: <Link style={{ textDecoration: 'none' }} to={'/inventory'}>All</Link>,
-        //         },
-        //         {
-        //             key: 'addNew',
-        //             label: <Link style={{ textDecoration: 'none' }} to={'/inventory/add-product'}>Add new</Link>,
-        //         },
-        //     ],
-        // },
     ];
+
+    // Lọc các mục menu dựa trên quyền của người dùng
+    const filteredItems = items.filter(item => auth.permision.includes(item.url));
 
     const [collapsed, setCollapsed] = useState(false);
 
@@ -104,7 +101,8 @@ const SiderComponent = () => {
                     </Text>
                 )}
             </div>
-            <Menu mode="inline" items={items} theme="light" />
+            {/* Render các mục đã lọc */}
+            <Menu mode="inline" items={filteredItems} theme="light" />
         </Sider>
     );
 };

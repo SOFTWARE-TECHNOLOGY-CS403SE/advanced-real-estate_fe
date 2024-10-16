@@ -24,7 +24,8 @@ const Login = () => {
                 // Lưu thông tin xác thực vào localStorage
                 const authData = {
                     token: res.result.token,
-                    role: "admin" // Lưu role vào auth (admin hoặc client)
+                    role: "admin", // Lưu role vào auth (admin hoặc client)
+                    permision : ['/admin', '/admin/user', '/admin/building', '/admin/service', '/admin/map'] // sau lau từ api về bỏ vào
                 };
                 // Dispatch action để lưu vào Redux store
                 dispatch(addAuth(authData));
