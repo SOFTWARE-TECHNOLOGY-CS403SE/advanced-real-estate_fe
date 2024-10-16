@@ -19,7 +19,6 @@ const Login = () => {
         setIsLoading(true);
         try {
             const res = await handleAPI(api, values, "post");
-            console.log(res);
             if (res.code === 1000) {
                 message.success("Đã đăng nhập thành công!");
                 // Lưu thông tin xác thực vào localStorage

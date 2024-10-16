@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Affix, Layout, Spin } from "antd";
 import { Routes, Route } from "react-router-dom";
-import { HeaderComponent, SiderComponent } from "../component";
+import { FooterComponent, HeaderComponent, SiderComponent } from "../component";
 import AdminScreen from "./../screens/admin/AdminScreen";
-import ServiceScreen from './../screens/admin/ServiceScreen';
+import ServiceScreen from "./../screens/admin/ServiceScreen";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuth, authSelector } from "../redux/reducers/authReducer";
 import { Login } from "../screens";
@@ -12,7 +12,7 @@ import UserScreen from "../screens/admin/UserScreen";
 import BuildingScreen from "../screens/admin/BuildingScreen";
 import MapScreen from "../screens/admin/MapScreen";
 
-const { Content, Footer } = Layout;
+const { Content } = Layout;
 
 function AdminRouter() {
     const auth = useSelector(authSelector);
@@ -38,7 +38,14 @@ function AdminRouter() {
 
     if (isLoading) {
         return (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100vh",
+                }}
+            >
                 <Spin />
             </div>
         );
@@ -68,7 +75,9 @@ function AdminRouter() {
                         <Route path="map" element={<MapScreen />} />
                     </Routes>
                 </Content>
-                <Footer className="bg-white" />
+                <Affix offsetTop={0}>
+                    <FooterComponent/>
+                </Affix>
             </Layout>
         </Layout>
     );
