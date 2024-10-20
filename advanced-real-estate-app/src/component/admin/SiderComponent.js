@@ -34,6 +34,11 @@ const SiderComponent = () => {
             icon: <Home2 size={20} />,
         },
         {
+            key: 'chat',
+            label: <Link to={'/admin/chat'}>Nhắn tin</Link>,
+            icon: <Home2 size={20} />,
+        },
+        {
             key: 'user',
             label: <Link to={'/admin/user'}>Quản Lý người dùng</Link>,
             icon: <Home2 size={20} />,

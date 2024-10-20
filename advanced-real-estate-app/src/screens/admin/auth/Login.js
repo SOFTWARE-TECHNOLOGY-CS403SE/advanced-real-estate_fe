@@ -83,7 +83,7 @@ const Login = () => {
                         >
                             {/* Label + Input Email */}
                             <Form.Item
-                                name={"username"}
+                                name={"email"}
                                 label="User name or Email"
                                 rules={[
                                     {

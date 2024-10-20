@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import UserScreen from "../screens/admin/UserScreen";
 import BuildingScreen from "../screens/admin/BuildingScreen";
 import MapScreen from "../screens/admin/MapScreen";
+import ChatScreen from "../screens/admin/ChatScreen";
 
 const { Content, Footer } = Layout;
 
@@ -20,12 +21,8 @@ function AdminRouter() {
     const [isLoading, setIsLoading] = useState(true); // Trạng thái để kiểm soát hiển thị khi đang tải dữ liệu
 
     useEffect(() => {
-        console.log(auth);
-    }, []);
-
-    useEffect(() => {
         if (!auth.token) {
-            getData();
+            getData().then(r => r);
         } else {
             setIsLoading(false);
         }
@@ -62,6 +59,7 @@ function AdminRouter() {
                 <Content className="pt-3 container-fluid">
                     <Routes>
                         <Route path="" element={<AdminScreen />} />
+                        <Route path="chat" element={<ChatScreen />} />
                         <Route path="user" element={<UserScreen />} />
                         <Route path="building" element={<BuildingScreen />} />
                         <Route path="service" element={<ServiceScreen />} />
