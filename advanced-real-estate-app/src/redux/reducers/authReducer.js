@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     token: '', // Token người dùng sau khi đăng nhập
     role: '', // Vai trò của người dùng ('admin' hoặc 'client')
+    info: '',
     permision : [],
 };
 
@@ -15,11 +16,13 @@ const authSlice = createSlice({
         addAuth: (state, action) => {
             state.token = action.payload.token;
             state.role = action.payload.role;
+            state.info = action.payload.info;
             state.permision = action.payload.permision;
         },
         removeAuth: (state) => {
             state.token = '';
             state.role = '';
+            state.info = '';
             state.permision = [];
         },
         refreshtoken: (state, action) => {

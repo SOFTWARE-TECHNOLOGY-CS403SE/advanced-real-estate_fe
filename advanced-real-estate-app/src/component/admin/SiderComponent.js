@@ -29,6 +29,16 @@ const SiderComponent = () => {
             url: path, // Đường dẫn cần kiểm tra quyền truy cập
         },
         {
+            key: "chat",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/chat"}>
+                    Nhắn tin
+                </Link>
+            ),
+            icon: <User size={20} />,
+            url: path + "/chat",
+        },
+        {
             key: "user",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/user"}>
