@@ -1,13 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { useSelector } from "react-redux";
+import { authSelector } from "../../redux/reducers/authReducer";
+import styles from "../../assets/chat-box.module.css";
 
 let stompClient = null;
 
 const ChatScreen = () => {
+    const auth = useSelector(authSelector);
     const [messages, setMessages] = useState([]);
+    const [countUser, setCountUser] = useState("");
+    const [getting, setGettingUser] = useState("");
+    const [room, setRoom] = useState("");
+    const [bot, setBot] = useState("");
+    const [botMessageId, setBotMessageId] = useState(null);
+    const [botPendingStatus, setBotPendingStatus] = useState(false);
+    const chatContainerRef = useRef(null);
     const [userData, setUserData] = useState({
-        username: "",
         connected: false,
         message: "",
     });
@@ -16,7 +26,39 @@ const ChatScreen = () => {
         if (userData.connected) {
             connect();
         }
-    }, [userData.connected]);
+    }, [userData.connected, room]);
+
+    useEffect(() => {
+        return () => {
+            if (stompClient && stompClient.connected) {
+                disconnect().then();
+            }
+        };
+    }, [userData.connected, room]);
+
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            if (stompClient && stompClient.connected) {
+                disconnect().then(() => {
+                    console.log("Disconnected successfully before reloading.");
+                });
+            }
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [stompClient]);
+
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const handleRoomChange = (event) => {
+        setRoom(event.target.value);
+    };
 
     const connect = () => {
         console.log("Attempting to connect...");
@@ -27,11 +69,11 @@ const ChatScreen = () => {
                 console.log("debug: " + str);
             },
             onConnect: () => {
-                console.log("Connected to WebSocket");
+                console.log("WebSocket connected!");
                 onConnected();
             },
             onStompError: (frame) => {
-                console.error("STOMP error:", frame);
+                console.error("ERROR STOMP:", frame);
             },
             onWebSocketClose: (event) => {
                 console.log("WebSocket connection closed.", event);
@@ -48,29 +90,59 @@ const ChatScreen = () => {
     };
 
     const onConnected = () => {
-        stompClient.subscribe("/topic/public", (message) => {
+        stompClient.subscribe(`/topic/room/${room}`, (message) => {
             onMessageReceived(message);
         });
+
         stompClient.publish({
-            destination: "/app/addUser",
-            body: JSON.stringify({ sender: userData.username, type: "JOIN" }),
+            destination: `/app/addUser/${room}`,
+            body: JSON.stringify({
+                sender: auth?.info?.email,
+                email: auth?.info?.email,
+                type: "JOIN", room
+            }),
         });
     };
 
-    const onMessageReceived = (payload) => {
+    const disconnect = async () => {
+        if (stompClient && stompClient.connected) {
+            stompClient.publish({
+                destination: `/app/leaveRoom/${room}`,
+                body: JSON.stringify({
+                    sender: auth?.info?.username,
+                    email: auth?.info?.email,
+                    type: 'LEAVE'
+                })
+            });
+            stompClient.deactivate();
+            console.log("WebSocket disconnected.");
+            setUserData((prevData) => ({ ...prevData, connected: false }));
+            setMessages([]);
+        } else {
+            console.log("WebSocket is already disconnected.");
+        }
+    };
+
+    const onMessageReceived = async (payload) => {
         const message = JSON.parse(payload.body);
+        console.log("msg: ",message);
+        if(message?.count){
+            setCountUser("Số user trong phòng: " + message?.count);
+        }
         setMessages((prevMessages) => [...prevMessages, message]);
     };
 
     const sendMessage = () => {
         if (stompClient && stompClient.connected && userData.message.trim() !== "") {
             const chatMessage = {
-                sender: userData.username,
+                sender: auth?.info?.email,
+                email: auth?.info?.email,
                 content: userData.message,
                 type: "CHAT",
+                room,
             };
             stompClient.publish({
-                destination: "/app/sendMessage",
+                destination: `/app/sendMessageToRoom/${room}`,
                 body: JSON.stringify(chatMessage),
             });
             setUserData({ ...userData, message: "" });
@@ -83,39 +155,67 @@ const ChatScreen = () => {
         setUserData({ ...userData, message: event.target.value });
     };
 
-    const handleUsernameChange = (event) => {
-        setUserData({ ...userData, username: event.target.value });
-    };
-
     return (
         <div>
             {!userData.connected ? (
                 <div>
-                    <input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={userData.username}
-                        onChange={handleUsernameChange}
-                    />
+                    <select value={room} onChange={handleRoomChange}>
+                        <option value="">Chọn phòng</option>
+                        <option value="1">Room 1</option>
+                        <option value="2">Room 2</option>
+                        <option value="3">Room 3</option>
+                    </select>
                     <button onClick={() => setUserData({ ...userData, connected: true })}>
-                        Connect
+                        Vào phòng
                     </button>
                 </div>
             ) : (
-                <div>
-                    <ul>
-                        {messages.map((msg, index) => (
-                            <li key={index}>
-                                {msg.sender}: {msg.content}
-                            </li>
-                        ))}
-                    </ul>
-                    <input
-                        type="text"
-                        value={userData.message}
-                        onChange={handleMessageChange}
-                    />
-                    <button onClick={sendMessage}>Send</button>
+                <div className={styles.chatContainer}>
+                    <div className={styles.chatHeader}>
+                        <h2>Room: {room}</h2>
+                        <h3>Username: {auth?.info?.username}</h3>
+                        <b>{countUser}</b>
+                        <button onClick={disconnect}>Thoát phòng</button>
+                    </div>
+
+                    <div className={styles.chatMessages} ref={chatContainerRef}>
+                        <ul>
+                            {messages.map((msg, index) => (
+                                <li key={index}>
+                                    <div className={
+                                        msg.content !== null && msg.sender !== undefined ?
+                                        (msg.sender === auth?.info?.email ?
+                                        `${styles.chatMessage} ${styles.chatMessageSelf}` :
+                                        `${styles.chatMessage} ${styles.chatMessageOther}`) : ''}>
+                                        <b>
+                                            {msg.content === null ? '' : msg.sender === undefined ? '' : msg.sender + ": "}
+                                        </b>
+                                        <span>
+                                            {msg.content}
+                                        </span>
+                                    </div>
+
+                                    {msg?.bot && (
+                                        <div className={`${styles.chatMessage} ${styles.chatBot}`}>
+                                            <span>
+                                                 <b>Bot: </b>{msg.bot}
+                                            </span>
+                                        </div>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className={styles.chatInput}>
+                        <input
+                            type="text"
+                            value={userData.message}
+                            onChange={handleMessageChange}
+                            placeholder="Type your message here..."
+                        />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
                 </div>
             )}
         </div>

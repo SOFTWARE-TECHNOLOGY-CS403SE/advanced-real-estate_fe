@@ -21,6 +21,10 @@ function AdminRouter() {
     const [isLoading, setIsLoading] = useState(true); // Trạng thái để kiểm soát hiển thị khi đang tải dữ liệu
 
     useEffect(() => {
+        console.log(auth)
+    }, [auth]);
+
+    useEffect(() => {
         if (!auth.token) {
             getData().then(r => r);
         } else {

@@ -24,8 +24,10 @@ const Login = () => {
                 message.success("Đã đăng nhập thành công!");
                 // Lưu thông tin xác thực vào localStorage
                 const authData = {
-                    token: res.result.token,
-                    role: "admin" // Lưu role vào auth (admin hoặc client)
+                    token: res?.result?.login?.token,
+                    role: res?.result?.infoUser?.roles.map(item => item?.name),
+                    info: res?.result?.infoUser
+                    // Lưu role vào auth (admin hoặc client)
                 };
                 // Dispatch action để lưu vào Redux store
                 dispatch(addAuth(authData));
@@ -33,6 +35,7 @@ const Login = () => {
                 navigate("/admin");
             }
         } catch (error) {
+            navigate("/admin/login");
             message.error(error.message);
         } finally {
             setIsLoading(false);
