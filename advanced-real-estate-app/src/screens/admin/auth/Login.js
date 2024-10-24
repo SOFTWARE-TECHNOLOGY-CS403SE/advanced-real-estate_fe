@@ -19,13 +19,17 @@ const Login = () => {
         setIsLoading(true);
         try {
             const res = await handleAPI(api, values, "post");
+            console.log(res);
             if (res.code === 1000) {
                 message.success("Đã đăng nhập thành công!");
                 // Lưu thông tin xác thực vào localStorage
                 const authData = {
-                    token: res.result.token,
-                    role: "admin", // Lưu role vào auth (admin hoặc client)
-                    permision : ['/admin', '/admin/user', '/admin/building', '/admin/service', '/admin/map'] // sau lau từ api về bỏ vào
+                    token: res?.result?.login?.token,
+                    role: res?.result?.infoUser?.roles.map(item => item?.name),
+                    info: res?.result?.infoUser,
+                    // sau lau từ api về bỏ vào
+                    permision : ['/admin', '/admin/chat', '/admin/user', '/admin/building', '/admin/service', '/admin/map'] 
+                    // Lưu role vào auth (admin hoặc client)
                 };
                 // Dispatch action để lưu vào Redux store
                 dispatch(addAuth(authData));
@@ -33,6 +37,7 @@ const Login = () => {
                 navigate("/admin");
             }
         } catch (error) {
+            navigate("/admin/login");
             message.error(error.message);
         } finally {
             setIsLoading(false);
@@ -83,7 +88,7 @@ const Login = () => {
                         >
                             {/* Label + Input Email */}
                             <Form.Item
-                                name={"username"}
+                                name={"email"}
                                 label="User name or Email"
                                 rules={[
                                     {

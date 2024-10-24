@@ -1,4 +1,6 @@
+import {createStore, applyMiddleware} from 'redux';
 import rootReducers from "./reducers/index";
+import {thunk} from "redux-thunk"
 import {configureStore} from "@reduxjs/toolkit"
 import {
     persistStore,

@@ -12,6 +12,7 @@ import UserScreen from "../screens/admin/UserScreen";
 import BuildingScreen from "../screens/admin/BuildingScreen";
 import MapScreen from "../screens/admin/MapScreen";
 import PrivateRoute from "./PrivateRoute";
+import ChatScreen from "../screens/admin/ChatScreen";
 
 const { Content } = Layout;
 
@@ -22,8 +23,8 @@ function AdminRouter() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(auth);
-    }, []);
+        console.log("login success: ",auth);
+    }, [auth]);
 
     useEffect(() => {
         if (!auth.token) {
@@ -79,6 +80,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin">
                                     <AdminScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="chat"
+                            element={
+                                <PrivateRoute path="/admin/chat">
+                                   <ChatScreen />
                                 </PrivateRoute>
                             }
                         />
