@@ -81,7 +81,7 @@ const SiderComponent = () => {
     ];
 
     // Lọc các mục menu dựa trên quyền của người dùng
-    const filteredItems = items.filter(item => auth.permision.includes(item.url));
+    const filteredItems = items.filter(item => auth.permission.includes(item.url));
 
     const [collapsed, setCollapsed] = useState(false);
 

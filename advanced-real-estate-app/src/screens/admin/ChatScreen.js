@@ -4,12 +4,16 @@ import SockJS from "sockjs-client";
 import { useSelector } from "react-redux";
 import { authSelector } from "../../redux/reducers/authReducer";
 import styles from "../../assets/chat-box.module.css";
+import handleAPINotToken from "../../apis/handleAPINotToken";
+import {Link} from "react-router-dom";
 
 let stompClient = null;
 
 const ChatScreen = () => {
+
     const auth = useSelector(authSelector);
     const [messages, setMessages] = useState([]);
+    const [rooms, setRooms] = useState([]);
     const [countUser, setCountUser] = useState("");
     const [getting, setGettingUser] = useState("");
     const [room, setRoom] = useState("");
@@ -21,6 +25,20 @@ const ChatScreen = () => {
         connected: false,
         message: "",
     });
+
+    const callApiRoomChat = async ()=>{
+        return await handleAPINotToken('/api/user/room-chats', {}, 'get');
+    }
+
+    useEffect(() => {
+        callApiRoomChat()
+        .then(res => setRooms(res?.data))
+        .catch(error => console.error("Fetch error: ",error));
+    }, []);
+
+    useEffect(() => {
+        console.log(rooms)
+    }, [rooms]);
 
     useEffect(() => {
         if (userData.connected) {
@@ -56,13 +74,14 @@ const ChatScreen = () => {
         }
     }, [messages]);
 
-    const handleRoomChange = (event) => {
-        setRoom(event.target.value);
+    const handleRoomChange = (room) => {
+        setRoom(room);
+        setUserData({ ...userData, connected: true });
     };
 
     const connect = () => {
         console.log("Attempting to connect...");
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS("http://localhost:9090/ws");
         stompClient = new Client({
             webSocketFactory: () => socket,
             debug: (str) => {
@@ -91,7 +110,7 @@ const ChatScreen = () => {
 
     const onConnected = () => {
         stompClient.subscribe(`/topic/room/${room}`, (message) => {
-            onMessageReceived(message);
+            onMessageReceived(message).then();
         });
 
         stompClient.publish({
@@ -159,15 +178,22 @@ const ChatScreen = () => {
         <div>
             {!userData.connected ? (
                 <div>
-                    <select value={room} onChange={handleRoomChange}>
-                        <option value="">Chọn phòng</option>
-                        <option value="1">Room 1</option>
-                        <option value="2">Room 2</option>
-                        <option value="3">Room 3</option>
-                    </select>
-                    <button onClick={() => setUserData({ ...userData, connected: true })}>
-                        Vào phòng
-                    </button>
+                    <div className={styles.roomContainer}>
+                        {rooms.map((room, index) => (
+                            <div key={index} className={styles.roomCard}>
+                                <img src={`data:${room?.file_type};base64,${room?.image}`} alt={room.name} className={styles.roomImage}/>
+                                <div className={styles.roomContent}>
+                                    <Link
+                                        onClick={() => handleRoomChange(room.name)}
+                                        to={'#'}
+                                    >
+                                        <h3 className={styles.roomTitle}>{room.name}</h3>
+                                        <p className={styles.roomDescription}>{room.description}</p>
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ) : (
                 <div className={styles.chatContainer}>
@@ -184,9 +210,9 @@ const ChatScreen = () => {
                                 <li key={index}>
                                     <div className={
                                         msg.content !== null && msg.sender !== undefined ?
-                                        (msg.sender === auth?.info?.email ?
-                                        `${styles.chatMessage} ${styles.chatMessageSelf}` :
-                                        `${styles.chatMessage} ${styles.chatMessageOther}`) : ''}>
+                                            (msg.sender === auth?.info?.email ?
+                                                `${styles.chatMessage} ${styles.chatMessageSelf}` :
+                                                `${styles.chatMessage} ${styles.chatMessageOther}`) : ''}>
                                         <b>
                                             {msg.content === null ? '' : msg.sender === undefined ? '' : msg.sender + ": "}
                                         </b>

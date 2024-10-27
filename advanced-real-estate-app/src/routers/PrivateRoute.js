@@ -10,7 +10,7 @@ const PrivateRoute = ({ children, path }) => {
         return <Navigate to="/admin/login" />;
     }
 
-    const roles = auth.permision || []; // Đảm bảo rằng roles luôn là một mảng
+    const roles = auth.permission || []; // Đảm bảo rằng roles luôn là một mảng
     if (!roles.includes(path)) {
         return <Navigate to="/404-not-found" />;
     }
