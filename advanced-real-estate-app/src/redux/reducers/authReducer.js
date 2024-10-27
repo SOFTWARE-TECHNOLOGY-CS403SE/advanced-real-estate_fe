@@ -5,7 +5,7 @@ const initialState = {
     token: '', // Token người dùng sau khi đăng nhập
     role: '', // Vai trò của người dùng ('admin' hoặc 'client')
     info: '',
-    permision : [],
+    permission : [],
 };
 
 // Tạo slice cho auth
@@ -17,13 +17,13 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.role = action.payload.role;
             state.info = action.payload.info;
-            state.permision = action.payload.permision;
+            state.permission = action.payload.permission;
         },
         removeAuth: (state) => {
             state.token = '';
             state.role = '';
             state.info = '';
-            state.permision = [];
+            state.permission = [];
         },
         refreshtoken: (state, action) => {
             state.token = action.payload.token;

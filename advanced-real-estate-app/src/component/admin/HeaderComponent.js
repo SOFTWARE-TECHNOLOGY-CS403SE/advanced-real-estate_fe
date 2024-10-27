@@ -19,9 +19,14 @@ const HeaderComponent = () => {
                 const payload = {
                     token: token
                 };
+
+                // localStorage.removeItem("persist:root");
                 try {
                     // Gọi API để đăng xuất
-                    const res = await handleAPI('/api/auth/logout', payload, 'post');
+                    const res = await handleAPI('/api/auth/logout', payload, 'post', token);
+                    if(res?.code === 1006){
+                        localStorage.removeItem("persist:root");
+                    }
                     if (res.code === 1000) {
                         // Thông báo đăng xuất thành công
                         message.success('Đăng xuất thành công!');
@@ -36,8 +41,13 @@ const HeaderComponent = () => {
                     }
                 } catch (error) {
                     // Thông báo nếu có lỗi xảy ra khi gọi API
-                    console.error("error: ", error)
+                    console.error("error: ", error);
                     message.error(error.message);
+                    if(error?.code === 1006){
+                        localStorage.removeItem("persist:root");
+                        dispatch(removeAuth());
+                        navigate('/admin/login');
+                    }
                 }
             },
         },

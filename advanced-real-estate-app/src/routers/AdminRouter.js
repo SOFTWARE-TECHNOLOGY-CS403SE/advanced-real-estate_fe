@@ -5,7 +5,7 @@ import { FooterComponent, HeaderComponent, SiderComponent } from "../component";
 import AdminScreen from "./../screens/admin/AdminScreen";
 import ServiceScreen from "./../screens/admin/ServiceScreen";
 import { useDispatch, useSelector } from "react-redux";
-import { addAuth, authSelector } from "../redux/reducers/authReducer";
+import { addAuth, removeAuth, authSelector } from "../redux/reducers/authReducer";
 import { Login } from "../screens";
 import { useEffect, useState } from "react";
 import UserScreen from "../screens/admin/UserScreen";
@@ -13,6 +13,7 @@ import BuildingScreen from "../screens/admin/BuildingScreen";
 import MapScreen from "../screens/admin/MapScreen";
 import PrivateRoute from "./PrivateRoute";
 import ChatScreen from "../screens/admin/ChatScreen";
+import { jwtDecode } from 'jwt-decode';
 
 const { Content } = Layout;
 
@@ -23,8 +24,22 @@ function AdminRouter() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log("login success: ",auth);
+        console.log("auth: ",auth);
     }, [auth]);
+
+    useEffect(() => {
+        const token = auth?.token;
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Date.now() / 1000;
+            if (decodedToken.exp < currentTime) {
+                navigate("/admin/login");
+                dispatch(removeAuth());
+            }
+        } catch (error) {
+            dispatch(removeAuth());
+        }
+    }, [dispatch]);
 
     useEffect(() => {
         if (!auth.token) {
