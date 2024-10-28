@@ -28,7 +28,15 @@ const Login = () => {
                     role: res?.result?.infoUser?.roles.map(item => item?.name),
                     info: res?.result?.infoUser,
                     // sau lau từ api về bỏ vào
-                    permission : ['/admin', '/admin/chat', '/admin/user', '/admin/building', '/admin/service', '/admin/map']
+                    permission : [
+                        '/admin',
+                        '/admin/chat',
+                        '/admin/room-chat',
+                        '/admin/user',
+                        '/admin/building',
+                        '/admin/service',
+                        '/admin/map'
+                    ]
                     // Lưu role vào auth (admin hoặc client)
                 };
                 // Dispatch action để lưu vào Redux store
