@@ -22,10 +22,6 @@ const HomeScreen = () => {
             .catch(error => console.error("Fetch error: ",error));
     }, []);
 
-    useEffect(() => {
-        console.log(buildings);
-    }, [buildings]);
-
     return (
         <div>
             <Welcome/>
