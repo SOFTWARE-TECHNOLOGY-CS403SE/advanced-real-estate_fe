@@ -14,6 +14,7 @@ import MapScreen from "../screens/admin/MapScreen";
 import PrivateRoute from "./PrivateRoute";
 import ChatScreen from "../screens/admin/ChatScreen";
 import { jwtDecode } from 'jwt-decode';
+import RoomChatScreen from "../screens/admin/RoomChatScreen";
 
 const { Content } = Layout;
 
@@ -103,6 +104,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin/chat">
                                    <ChatScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="room-chat"
+                            element={
+                                <PrivateRoute path="/admin/room-chat">
+                                    <RoomChatScreen />
                                 </PrivateRoute>
                             }
                         />

@@ -29,11 +29,11 @@ const BuildingScreen = () => {
             id: building?.id,
             name: building?.name,
             structure: building?.structure,
-            level: building?.level,
             area: building?.area,
             type: building?.type,
             description: building?.description,
-            number_of_basement: building?.number_of_basement
+            number_of_basement: building?.number_of_basement,
+            price: building?.price
         });
     };
 
@@ -42,11 +42,11 @@ const BuildingScreen = () => {
             id: building?.id,
             name: building?.name,
             structure: building?.structure,
-            level: building?.level,
             area: building?.area,
             type: building?.type,
             description: building?.description,
-            number_of_basement: building?.number_of_basement
+            number_of_basement: building?.number_of_basement,
+            price: building?.price
         });
     };
 
@@ -87,11 +87,11 @@ const BuildingScreen = () => {
         const payload = {
             name: editingBuilding?.name,
             structure: editingBuilding?.structure,
-            level: editingBuilding?.level,
             area: editingBuilding?.area,
             type: editingBuilding?.type,
             description: editingBuilding?.description,
-            number_of_basement: editingBuilding?.number_of_basement
+            number_of_basement: editingBuilding?.number_of_basement,
+            price: editingBuilding?.price
         }
         await handleApiBuilding(`/api/admin/buildings`, payload, "post", auth?.token)
             .then(res => message.success("Clone Building successfully!"))
@@ -109,11 +109,11 @@ const BuildingScreen = () => {
         const payload = {
             name: editingBuilding?.name,
             structure: editingBuilding?.structure,
-            level: editingBuilding?.level,
             area: editingBuilding?.area,
             type: editingBuilding?.type,
             description: editingBuilding?.description,
-            number_of_basement: editingBuilding?.number_of_basement
+            number_of_basement: editingBuilding?.number_of_basement,
+            price: editingBuilding?.price,
         }
         await handleApiBuilding(`/api/admin/buildings/${id}`, payload, "patch", auth?.token)
             .then(res => message.success("Update Building successfully!"))
@@ -156,17 +156,17 @@ const BuildingScreen = () => {
                                 <th className="align-middle text-center">Ảnh</th>
                                 <th className="align-middle text-center">Tên nhà</th>
                                 <th className="align-middle text-center">Kiến trúc</th>
-                                <th className="align-middle text-center">cấp độ</th>
+                                <th className="align-middle text-center">Gía</th>
                                 <th className="align-middle text-center">vị trí</th>
                                 <th className="align-middle text-center">kiểu</th>
                                 <th className="align-middle text-center">mô tả</th>
                                 <th className="align-middle text-center">số tầng</th>
-                                <th colSpan={"4"}>Action</th>
+                                <th colSpan={"5"}>Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             {
-                                buildings.map((building, index) => (
+                                buildings?.map((building, index) => (
                                     <tr key={index}>
                                         <td>{building?.id}</td>
                                         <td>
@@ -215,14 +215,14 @@ const BuildingScreen = () => {
                                             {editingBuilding?.id === building.id ? (
                                                 <input
                                                     type="text"
-                                                    value={editingBuilding.level}
+                                                    value={editingBuilding.price}
                                                     onChange={(e) => setEditingBuilding({
                                                         ...editingBuilding,
-                                                        level: e.target.value
+                                                        price: e.target.value
                                                     })}
                                                 />
                                             ) : (
-                                                <textarea value={building.level} readOnly/>
+                                                <textarea value={building.price} readOnly/>
                                             )}
                                         </td>
                                         <td>
@@ -286,6 +286,17 @@ const BuildingScreen = () => {
                                                 <textarea value={building.number_of_basement} readOnly/>
                                             )}
                                         </td>
+                                        {editingBuilding?.id === building.id ?
+                                            <td>
+                                                <Button className={'btn btn-danger'}
+                                                        onClick={() => {
+                                                            setEditingBuilding(null);
+                                                        }}>
+                                                    X
+                                                </Button>
+                                            </td>
+                                            : null
+                                        }
                                         <td>
                                             {editingBuilding?.id === building.id ? (
                                                 <div>

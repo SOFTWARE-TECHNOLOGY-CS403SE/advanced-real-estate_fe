@@ -1,12 +1,17 @@
 /* eslint-disable no-unused-vars */
 import { Layout, Menu, Typography } from "antd";
-import { Home2, Map1, House, Profile2User, User, TruckTick } from "iconsax-react";
+import {Home2, Map1, House, Profile2User, User, TruckTick, HomeTrendDown} from "iconsax-react";
 import { Link } from "react-router-dom";
 import { appInfo } from "../../constants/appInfos";
 import { colors } from "../../constants/colors";
 import { useState, useRef } from "react"; // Thêm useRef
 import { useSelector } from "react-redux";
 import { authSelector } from "../../redux/reducers/authReducer";
+import {GrChat} from "react-icons/gr";
+import {MdHotel, MdRoom} from "react-icons/md";
+import {VscHome} from "react-icons/vsc";
+import {FaHotel} from "react-icons/fa";
+import {BiHome, BiHotel} from "react-icons/bi";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -35,8 +40,18 @@ const SiderComponent = () => {
                     Nhắn tin
                 </Link>
             ),
-            icon: <User size={20} />,
+            icon: <GrChat size={20} />,
             url: path + "/chat",
+        },
+        {
+            key: "room-chat",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/room-chat"}>
+                    Phòng chat
+                </Link>
+            ),
+            icon: <VscHome size={20} />,
+            url: path + "/room-chat",
         },
         {
             key: "user",
@@ -55,7 +70,7 @@ const SiderComponent = () => {
                     Quản Lý tòa nhà
                 </Link>
             ),
-            icon: <House size={20} />,
+            icon: <BiHome size={20} />,
             url: path + "/building",
         },
         {
