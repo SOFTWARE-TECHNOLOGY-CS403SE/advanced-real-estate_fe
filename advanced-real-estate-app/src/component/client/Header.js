@@ -1,18 +1,58 @@
-import React from 'react';
-import {Link} from "react-router-dom";
+import React, {useEffect} from 'react';
+import {Link, useNavigate} from "react-router-dom";
+import Filter from "./Filter";
+import {appInfo} from "../../constants/appInfos";
+import {useDispatch, useSelector} from "react-redux";
+import {authSelector, removeAuth} from "../../redux/reducers/authReducer";
+import handleAPI from "../../apis/handlAPI";
+import {message} from "antd";
+import styles from "../../assets/css/header-client.module.css";
 
 const Header = () => {
+
+    const auth = useSelector(authSelector);
+    const dispatch = useDispatch(); // Sử dụng useDispatch để tạo dispatch
+    const navigate = useNavigate();
+    const logout = async ()=>{
+        const token = auth?.token;
+        const payload = {
+            token: token
+        };
+
+        try {
+            const res = await handleAPI('/api/auth/logout', payload, 'post', token);
+            if(res?.code === 1006){
+                localStorage.removeItem("persist:root");
+            }
+            if (res.code === 1000) {
+                message.success('Đăng xuất thành công!');
+                dispatch(removeAuth());
+                navigate('/');
+            } else {
+                message.error('Đăng xuất thất bại!');
+            }
+        } catch (error) {
+            console.error("error: ", error);
+            message.error(error.message);
+            if(error?.code === 1006){
+                localStorage.removeItem("persist:root");
+                dispatch(removeAuth());
+                navigate('/');
+            }
+        }
+    }
+
     return (
         <div>
-            <div className="container-fluid bg-dark px-0">
+            <div className={`${styles.headerClient} container-fluid bg-dark px-0`}>
                 <div className="row gx-0">
                     <div className="col-lg-3 bg-dark d-none d-lg-block">
-                        <a
-                            href="index.html"
-                            className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
-                        >
-                            <h1 className="m-0 text-primary text-uppercase">Hotelier</h1>
-                        </a>
+                        <Link className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
+                         to={"/"}>
+                            <h6 className="m-0 text-primary text-uppercase">
+                                {appInfo.title}
+                            </h6>
+                        </Link>
                     </div>
                     <div className="col-lg-9">
                         <div className="row gx-0 bg-white d-none d-lg-flex">
@@ -64,13 +104,19 @@ const Header = () => {
                             >
                                 <div className="navbar-nav mr-auto py-0">
                                     <Link to={"/"} className="nav-item nav-link active">
-                                        Home
+                                        TRANG CHỦ
                                     </Link>
                                     <Link to={"/buildings"} className="nav-item nav-link">
-                                        Building
+                                        VỀ TÒA NHÀ
                                     </Link>
-                                    <Link to={"/chat"} className="nav-item nav-link">
-                                        Chat
+                                    <Link to={"/room-chat"} className="nav-item nav-link">
+                                        Phòng nhắn tin
+                                    </Link>
+                                    <Link to={"/dau-gia"} className="nav-item nav-link">
+                                        DẤU GIÁ
+                                    </Link>
+                                    <Link className="nav-item nav-link" to={'/mua-nha'}>
+                                        MUA NHÀ
                                     </Link>
                                     <div className="nav-item dropdown">
                                         <Link
@@ -78,152 +124,69 @@ const Header = () => {
                                             className="nav-link dropdown-toggle"
                                             data-bs-toggle="dropdown"
                                         >
-                                            Pages
+                                            TÀI KHOẢN
                                         </Link>
                                         <div className="dropdown-menu rounded-0 m-0">
-                                            <Link to={'/'} className="dropdown-item">
-                                                Booking
+                                            <Link to={'/sign-in'} className="dropdown-item">
+                                                ĐĂNG NHẬP
                                             </Link>
-                                            <Link to={'/'} className="dropdown-item">
-                                                Our Team
-                                            </Link>
-                                            <Link to={'/'} className="dropdown-item">
-                                                Testimonial
+                                            <Link to={'/sign-up'} className="dropdown-item">
+                                                ĐĂNG KÝ
                                             </Link>
                                         </div>
                                     </div>
-                                    <Link className="nav-item nav-link" to={'/contact'}>
-                                        Contact
-                                    </Link>
+
+                                    <div className="nav-item dropdown">
+                                        <Link
+                                            to="#"
+                                            className="nav-link dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
+                                            KHÁC
+                                        </Link>
+                                        <div className="dropdown-menu rounded-0 m-0">
+                                            <Link to={'/contact'} className="dropdown-item">
+                                                LIÊN HỆ
+                                            </Link>
+                                        </div>
+                                    </div>
                                 </div>
-                                <a
-                                    href="https://htmlcodex.com/hotel-html-template-pro"
-                                    className="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block"
-                                >
-                                    Premium Version
-                                    <i className="fa fa-arrow-right ms-3"/>
-                                </a>
+                                {
+                                    !auth?.token && !auth?.info ? (
+                                            <div>
+                                                <Link
+                                                    href="https://htmlcodex.com/hotel-html-template-pro"
+                                                    className="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block"
+                                                    to={"/"}>
+                                                    {appInfo.title}
+                                                    <i className="fa fa-arrow-right ms-3"/>
+                                                </Link>
+                                            </div>
+                                        )
+                                        :
+                                        <div className="nav-item dropdown">
+                                            <Link
+                                                to="#"
+                                                className="nav-link dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
+                                            <i className="fa fa-user ms-3"/>
+                                            {" " + auth?.info?.username}
+                                        </Link>
+                                        <div className="dropdown-menu rounded-0 m-0">
+                                            <Link onClick={logout} className="dropdown-item" to={"#"}>
+                                                ĐĂNG XUẤT
+                                            </Link>
+                                        </div>
+                                    </div>
+                                }
+
                             </div>
                         </nav>
                     </div>
                 </div>
             </div>
-            <div className="container-fluid p-0 mb-5">
-                <div id="header-carousel" className="carousel slide" data-bs-ride="carousel">
-                    <div className="carousel-inner">
-                        <div className="carousel-item active carousel-item-start">
-                            <img className="w-100" src="img/carousel-1.jpg" alt="Image"/>
-                            <div
-                                className="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                <div className="p-3" style={{maxWidth: 700}}>
-                                    <h6 className="section-title text-white text-uppercase mb-3 animated slideInDown">
-                                        Luxury Living
-                                    </h6>
-                                    <h1 className="display-3 text-white mb-4 animated slideInDown">
-                                        Discover A Brand Luxurious Hotel
-                                    </h1>
-                                    <a
-                                        href=""
-                                        className="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
-                                    >
-                                        Our Rooms
-                                    </a>
-                                    <a
-                                        href=""
-                                        className="btn btn-light py-md-3 px-md-5 animated slideInRight"
-                                    >
-                                        Book A Room
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="carousel-item carousel-item-next carousel-item-start">
-                            <img className="w-100" src="img/carousel-2.jpg" alt="Image"/>
-                            <div
-                                className="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                <div className="p-3" style={{maxWidth: 700}}>
-                                    <h6 className="section-title text-white text-uppercase mb-3 animated slideInDown">
-                                        Luxury Living
-                                    </h6>
-                                    <h1 className="display-3 text-white mb-4 animated slideInDown">
-                                        Discover A Brand Luxurious Hotel
-                                    </h1>
-                                    <a
-                                        href=""
-                                        className="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
-                                    >
-                                        Our Rooms
-                                    </a>
-                                    <a
-                                        href=""
-                                        className="btn btn-light py-md-3 px-md-5 animated slideInRight"
-                                    >
-                                        Book A Room
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button
-                        className="carousel-control-prev"
-                        type="button"
-                        data-bs-target="#header-carousel"
-                        data-bs-slide="prev"
-                    >
-                        <span className="carousel-control-prev-icon" aria-hidden="true"/>
-                        <span className="visually-hidden">Previous</span>
-                    </button>
-                    <button
-                        className="carousel-control-next"
-                        type="button"
-                        data-bs-target="#header-carousel"
-                        data-bs-slide="next"
-                    >
-                        <span className="carousel-control-next-icon" aria-hidden="true"/>
-                        <span className="visually-hidden">Next</span>
-                    </button>
-                </div>
-            </div>
-            <div
-                className="container-fluid booking pb-5 wow fadeIn"
-                data-wow-delay="0.1s"
-                style={{
-                    visibility: "visible",
-                    animationDelay: "0.1s",
-                    animationName: "fadeIn"
-                }}
-            >
-                <div className="container">
-                    <div className="bg-white shadow" style={{padding: 35}}>
-                        <div className="row g-2">
-                            <div className="col-md-10">
-                                <div className="row g-2">
 
-                                    <div className="col-md-6">
-                                        <select className="form-select">
-                                            <option selected="">Loại nhà</option>
-                                            <option value={1}>Adult 1</option>
-                                            <option value={2}>Adult 2</option>
-                                            <option value={3}>Adult 3</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <select className="form-select">
-                                            <option selected="">Căn hộ</option>
-                                            <option value={1}>Child 1</option>
-                                            <option value={2}>Child 2</option>
-                                            <option value={3}>Child 3</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-md-2">
-                                <button className="btn btn-primary w-100">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
         </div>
     );
