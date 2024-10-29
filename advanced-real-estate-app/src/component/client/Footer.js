@@ -1,6 +1,8 @@
 import React from 'react';
+import {appInfo} from "../../constants/appInfos";
 
 const Footer = () => {
+
     return (
         <div>
             <div
@@ -17,21 +19,38 @@ const Footer = () => {
                         <div className="border rounded text-center p-1">
                             <div className="bg-white rounded text-center p-5">
                                 <h4 className="mb-4">
-                                    Subscribe Our{" "}
-                                    <span className="text-primary text-uppercase">Newsletter</span>
+                                    {"LIÊN HỆ VỚI CHÚNG TÔI "}
+                                    <span className="text-primary text-uppercase">ĐỂ BIẾT THÊM CHI TIẾT</span>
                                 </h4>
                                 <div className="position-relative mx-auto" style={{maxWidth: 400}}>
-                                    <input
-                                        className="form-control w-100 py-3 ps-4 pe-5"
-                                        type="text"
-                                        placeholder="Enter your email"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="btn btn-primary py-2 px-3 position-absolute top-0 end-0 mt-2 me-2"
-                                    >
-                                        Submit
-                                    </button>
+                                    <div className="col-md-12">
+                                        <div className="form-floating">
+                                            <input
+                                                className="form-control w-100 py-3 ps-4 pe-5"
+                                                type="text"
+                                                placeholder="NHẬP EMAIL CỦA BẠN"
+                                                name={'email'}
+                                            />
+                                            <label htmlFor="email">EMAIL CỦA BẠN</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-12 pt-2">
+                                        <div className="form-floating">
+                                            <textarea
+                                                className="form-control w-100 py-3 ps-4 pe-5"
+                                                type="text"
+                                                placeholder="NHẬP NỘI DUNG"
+                                                name={"content"}
+                                            />
+                                            <label htmlFor="content">NỘI DUNG GỬI</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-12 pt-3">
+                                        <button className="btn btn-primary w-100 py-3" type="submit">
+                                           GỬI
+                                        </button>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -53,7 +72,7 @@ const Footer = () => {
                         <div className="col-md-6 col-lg-4">
                             <div className="bg-primary rounded p-4">
                                 <a href="index.html">
-                                    <h1 className="text-white text-uppercase mb-3">Hotelier</h1>
+                                    <h1 className="text-white text-uppercase mb-3">{appInfo.title}</h1>
                                 </a>
                                 <p className="text-white mb-0">
                                     Download{" "}
