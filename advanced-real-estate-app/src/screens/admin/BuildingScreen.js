@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, {useEffect, useState} from 'react';
 import {authSelector} from "../../redux/reducers/authReducer";
 import {useSelector} from "react-redux";
