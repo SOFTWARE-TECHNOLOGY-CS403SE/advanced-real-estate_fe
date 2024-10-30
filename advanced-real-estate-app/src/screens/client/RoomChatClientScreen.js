@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, {useRef, useState} from 'react';
 import styles from '../../assets/css/instance.module.css';
 import {useDispatch, useSelector} from "react-redux";
