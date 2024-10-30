@@ -1,10 +1,12 @@
 import { combineReducers } from "redux";
 import authReducer from "./authReducer";
-import chatReducer from "./chatReducer"; // Import authReducer
+import chatReducer from "./chatReducer";
+import buildingReducer from "./buildingReducer"; // Import authReducer
 
 const rootReducers = combineReducers({
     auth: authReducer,
-    chat: chatReducer
+    chat: chatReducer,
+    building: buildingReducer,
 });
 
 export default rootReducers;

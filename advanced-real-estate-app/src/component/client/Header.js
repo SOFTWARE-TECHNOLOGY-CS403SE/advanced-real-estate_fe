@@ -115,9 +115,6 @@ const Header = () => {
                                     <Link to={"/dau-gia"} className="nav-item nav-link">
                                         DẤU GIÁ
                                     </Link>
-                                    <Link className="nav-item nav-link" to={'/mua-nha'}>
-                                        MUA NHÀ
-                                    </Link>
                                     <div className="nav-item dropdown">
                                         <Link
                                             to="#"
@@ -127,6 +124,12 @@ const Header = () => {
                                             TÀI KHOẢN
                                         </Link>
                                         <div className="dropdown-menu rounded-0 m-0">
+                                            <Link to={'/sign-in'} className="dropdown-item">
+                                                THÔNG TIN CÁ NHÂN
+                                            </Link>
+                                            <Link to={'/sign-in'} className="dropdown-item">
+                                                HÓA ĐƠN
+                                            </Link>
                                             <Link to={'/sign-in'} className="dropdown-item">
                                                 ĐĂNG NHẬP
                                             </Link>
@@ -152,7 +155,7 @@ const Header = () => {
                                     </div>
                                 </div>
                                 {
-                                    !auth?.token && !auth?.info ? (
+                                    !auth?.token && Object.keys(auth.info).length === 0 ? (
                                             <div>
                                                 <Link
                                                     href="https://htmlcodex.com/hotel-html-template-pro"

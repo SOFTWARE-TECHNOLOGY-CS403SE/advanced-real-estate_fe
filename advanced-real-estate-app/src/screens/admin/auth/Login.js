@@ -25,7 +25,7 @@ const Login = () => {
                 // Lưu thông tin xác thực vào localStorage
                 const authData = {
                     token: res?.result?.login?.token,
-                    role: res?.result?.infoUser?.roles.map(item => item?.name),
+                    roles: res?.result?.infoUser?.roles,
                     info: res?.result?.infoUser,
                     // sau lau từ api về bỏ vào
                     permission : [

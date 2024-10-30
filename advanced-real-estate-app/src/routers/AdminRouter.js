@@ -15,6 +15,7 @@ import PrivateRoute from "./PrivateRoute";
 import ChatScreen from "../screens/admin/ChatScreen";
 import { jwtDecode } from 'jwt-decode';
 import RoomChatScreen from "../screens/admin/RoomChatScreen";
+import {appVariables} from "../constants/appVariables";
 
 const { Content } = Layout;
 
@@ -23,6 +24,7 @@ function AdminRouter() {
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(true); // Trạng thái để kiểm soát hiển thị khi đang tải dữ liệu
     const navigate = useNavigate();
+    const listRoleRequireForManagerPage = appVariables.listRoleRequireForManagerPage;
 
     useEffect(() => {
         console.log("auth: ",auth);
@@ -77,6 +79,15 @@ function AdminRouter() {
     // Nếu không có token, hiển thị trang đăng nhập
     if (!auth.token) {
         return <Login />;
+    }
+    // Nếu K phải là role ADMIN thì đá về đăng nhập
+    if(auth?.roles){
+        const hasRequiredRole = auth.roles
+            .some(role => listRoleRequireForManagerPage
+            .includes(role.name));
+        if(!hasRequiredRole){
+            return <Login />;
+        }
     }
 
     // Nếu có token, hiển thị giao diện admin
