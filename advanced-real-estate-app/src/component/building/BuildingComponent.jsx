@@ -75,7 +75,24 @@ const BuildingComponent = () => {
         <div>
             <div className="container-xxl py-5">
                 <div className="container">
+                    <div
+                        className="text-center wow fadeInUp"
+                        data-wow-delay="0.1s"
+                        style={{
+                            visibility: "visible",
+                            animationDelay: "0.1s",
+                            animationName: "fadeInUp"
+                        }}
+                    >
+                        <h6 className="section-title text-center text-primary text-uppercase">
+                            {appInfo.title}
+                        </h6>
+                        <h1 className="mb-5">
+                            NHÀ CỦA <span className="text-primary text-uppercase">CHÚNG TÔI</span>
+                        </h1>
+                    </div>
                     <div className="row g-4">
+
                         {!listPathNoFilterClick.includes(location.pathname) &&
                             <div>
                                 <div
@@ -84,16 +101,17 @@ const BuildingComponent = () => {
                                     data-bs-target="#RemoveModal"
                                 >
                                     <span className={`${styles.filterIcon} text-primary`}>
-                                        <i className="fa fa-filter"/>
+                                        <i className="fa fa-search"/>
                                     </span>
-                                        <span className={`${styles.filterText}`}>
-                                        LỌC
+                                    <span className={`${styles.filterText}`}>
+                                        BẤM VÀO ĐIỂM TÌM KIẾM
                                     </span>
                                 </div>
 
                             </div>
                         }
                         <Modal/>
+
                         {currentBuildings.map((building, index) => (
                             <div
                                 key={index}
@@ -102,18 +120,18 @@ const BuildingComponent = () => {
                                 style={{
                                     visibility: "visible",
                                     animationDelay: "0.6s",
-                                animationName: "fadeInUp"
-                            }}
-                        >
-                            <div className="room-item shadow rounded overflow-hidden">
-                                <div className="position-relative">
-                                    <img className="img-fluid"
-                                         src={`data:${building?.file_type};base64,${building?.image}`}
-                                         alt={building?.file_type}/>
-                                    <small
-                                        className="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">
-                                        {appVariables.formatMoney(building?.price)}
-                                    </small>
+                                    animationName: "fadeInUp"
+                                }}>
+                                <div className="room-item shadow rounded overflow-hidden">
+                                    <div className="position-relative">
+                                        <img className="img-fluid"
+                                             src={`data:${building?.file_type};base64,${building?.image}`}
+                                             alt={building?.file_type}/>
+                                        <small
+                                            className="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">
+                                            <i className="fa fa-money text-default me-2"/>
+                                            {" "+appVariables.formatMoney(building?.price)}
+                                        </small>
                                     </div>
                                     <div className="p-4 mt-2">
                                         <div className="d-flex justify-content-between mb-3">
@@ -128,11 +146,11 @@ const BuildingComponent = () => {
                                         </div>
                                         <div className="d-flex mb-3">
                                             <small className="border-end me-3 pe-3">
-                                                <i className="fa fa-hotel text-primary me-2"/>
+                                                <i className="fa fa-home text-primary me-2"/>
                                                 {building?.structure}
                                             </small>
                                             <small className="border-end me-3 pe-3">
-                                                <i className="fa fa-home text-primary me-2"/>
+                                                <i className="fa fa-arrows text-primary me-2"/>
                                                 {`Diện tích ${building?.area}`}
                                             </small>
                                             <small>
@@ -140,12 +158,17 @@ const BuildingComponent = () => {
                                                 {`Số tầng ${building?.number_of_basement}`}
                                             </small>
                                             <small>
-                                                <i className="fa fa-home text-primary me-2"/>
+                                                <i className="fa fa-circle text-primary me-2"/>
                                                 {`Loại nhà ${building?.type}`}
+                                            </small>
+                                            <small>
+                                                <i className="fa fa-map-marker text-primary me-2"/>
+                                                {`Đường ${building?.map?.address}`}
                                             </small>
                                         </div>
                                         <div className="d-flex justify-content-between">
-                                            <Link className="btn btn-sm btn-primary rounded w-100" to={"/"}>
+                                            <Link className="btn btn-sm btn-primary rounded w-100"
+                                                  to={`/buildings/${building?.id}`}>
                                                 XEM CHI TIẾT
                                             </Link>
                                         </div>

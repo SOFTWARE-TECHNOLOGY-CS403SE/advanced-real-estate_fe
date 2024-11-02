@@ -16,6 +16,9 @@ import ChatScreen from "../screens/admin/ChatScreen";
 import { jwtDecode } from 'jwt-decode';
 import RoomChatScreen from "../screens/admin/RoomChatScreen";
 import {appVariables} from "../constants/appVariables";
+import handleAPI from "../apis/handlAPI";
+import {fetchUser} from "../apis/api";
+import { message } from "antd";
 
 const { Content } = Layout;
 
@@ -27,8 +30,16 @@ function AdminRouter() {
     const listRoleRequireForManagerPage = appVariables.listRoleRequireForManagerPage;
 
     useEffect(() => {
+        //luôn luôn gọi tới API để check token xem token có chính xác hay không
+        if(auth?.token){
+            fetchUser("/api/users", {}, "get",
+                auth?.token,
+                dispatch,
+                message
+            ).then();
+        }
         console.log("auth: ",auth);
-    }, [auth]);
+    }, [auth?.token]);
 
     useEffect(() => {
         const token = auth?.token;

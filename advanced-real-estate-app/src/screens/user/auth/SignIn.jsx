@@ -4,7 +4,11 @@ import {appInfo} from "../../../constants/appInfos";
 const SignIn = () => {
 
     return (
-        <div>
+        <div style={
+            {
+                paddingTop: "150px"
+            }
+        }>
             <div className="container-xxl py-5">
                 <div className="container">
                     <div

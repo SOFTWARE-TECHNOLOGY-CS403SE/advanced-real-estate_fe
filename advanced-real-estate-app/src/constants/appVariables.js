@@ -6,7 +6,10 @@ export let appVariables = {
         '/room-chat',
         '/dau-gia',
         '/buildings',
-        '/contact'
+        '/contact',
+        '/user/hop-dong',
+        '/user/info',
+        '/buildings/:id',
     ],
     listPathHidenFilter: [
         '/sign-in',
@@ -14,12 +17,13 @@ export let appVariables = {
         '/room-chat',
         '/dau-gia',
         '/contact',
-        '/mua-nha',
+        '/user/hop-dong',
+        '/user/info',
+        '/buildings/:id',
         '/',
     ],
     listPathNoContentClass: [
         '/buildings',
-        '/mua-nha',
         '/',
     ],
     listPathNoFilterClick: [
