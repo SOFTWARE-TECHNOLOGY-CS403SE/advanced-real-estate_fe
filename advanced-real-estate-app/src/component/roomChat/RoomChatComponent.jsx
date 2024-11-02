@@ -24,7 +24,7 @@ const RoomChatComponent = () => {
     }, []);
 
     const handleRoomChange = (room) => {
-        if(!auth?.token && !auth?.info){
+        if(!auth?.token){
             message.error("Bạn không thể vào phòng chat vui lòng đăng nhập vào!");
             return;
         }

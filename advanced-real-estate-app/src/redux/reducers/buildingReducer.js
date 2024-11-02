@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {message} from "antd";
 
 const initialState = {
     isLoading: false,
     buildings: [],
+    listBuildingDetail: [],
     isError: false,
     selectedType: '',
     selectedArea: '',
@@ -37,8 +39,26 @@ const buildingSlice = createSlice({
         setPrice: (state, action) =>{
             state.inputPrice = action.payload;
         },
+        addBuildingDetails: (state, action) =>{
+            // state.listBuildingDetail = [];
+            if (state.listBuildingDetail.length === 0) {
+                state.listBuildingDetail.push(action.payload);
+                message.success("Thêm nhà vào hợp đồng thành công!");
+                return;
+            }
+            const exists = state.listBuildingDetail.some(building => building.id === action.payload.id);
+            if(exists){
+                message.error("Bạn đã thêm nhà này vào hợp đồng!");
+                return;
+            }
+            state.listBuildingDetail.push(action.payload);
+            message.success("Thêm nhà vào hợp đồng thành công!");
+        },
         setFormattedPrice: (state, action) =>{
             state.inputPrice = action.payload;
+        },
+        removeBuildingDetails: (state, action) =>{
+            state.listBuildingDetail = state.listBuildingDetail.filter(building => building.id !== action.payload);
         },
         removeSelectedType: (state, action) =>{
             state.selectedType = '';
@@ -65,11 +85,13 @@ export const {
     setSelectedArea,
     setSelectedStructure,
     setPrice,
+    addBuildingDetails,
     setFormattedPrice,
     removeSelectedType,
     removeSelectedArea,
     removeSelectedStructure,
     removePrice,
+    removeBuildingDetails,
     removeFormattedPrice
 } = buildingSlice.actions;
 export default buildingSlice.reducer;

@@ -15,7 +15,11 @@ const RoomChatClientScreen = () => {
     const dispatch = useDispatch();
 
     return (
-        <div>
+        <div style={
+            {
+                paddingTop: "150px"
+            }
+        }>
             <div className="container-xxl py-5">
                 <div className="container">
                     <div
@@ -27,12 +31,6 @@ const RoomChatClientScreen = () => {
                             animationName: "fadeInUp"
                         }}
                     >
-                        <h6 className="section-title text-center text-primary text-uppercase">
-                            {appInfo.title}
-                        </h6>
-                        <h1 className="mb-5">
-                            PHÒNG NHẮN <span className="text-primary text-uppercase">TIN</span>
-                        </h1>
                     </div>
                     <div className="row g-5">
                         <div className="col-lg-12">

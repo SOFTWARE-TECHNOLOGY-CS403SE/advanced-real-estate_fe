@@ -4,10 +4,12 @@ import {authSelector} from "../../redux/reducers/authReducer";
 import {useSelector} from "react-redux";
 import {handleApiBuilding} from "../../apis/api";
 import { Button, Card, Form, Input, message, Typography } from "antd";
+import handleAPI from "../../apis/handlAPI";
 
 const BuildingScreen = () => {
 
     const [buildings, setBuildings] = useState([]);
+    const [maps, setMaps] = useState([]);
     const auth = useSelector(authSelector);
     const [editingBuilding, setEditingBuilding] = useState(null);
     const [file, setFile] = useState();
@@ -18,7 +20,9 @@ const BuildingScreen = () => {
 
     const refresh = async () =>{
         return await handleApiBuilding("/api/admin/buildings", {}, "get", auth?.token)
-        .then(res => setBuildings(res?.data))
+        .then(res => {
+            setBuildings(res?.data);
+        })
         .catch(error=> {
             message.error("Fetch error: ", error);
             console.log("Fetch error: ", error);
@@ -32,9 +36,11 @@ const BuildingScreen = () => {
             structure: building?.structure,
             area: building?.area,
             type: building?.type,
+            status: building?.status,
             description: building?.description,
             number_of_basement: building?.number_of_basement,
-            price: building?.price
+            price: building?.price,
+            map_id: building?.map_id
         });
     };
 
@@ -45,9 +51,11 @@ const BuildingScreen = () => {
             structure: building?.structure,
             area: building?.area,
             type: building?.type,
+            status: building?.status,
             description: building?.description,
             number_of_basement: building?.number_of_basement,
-            price: building?.price
+            price: building?.price,
+            map_id: building?.map?.id
         });
     };
 
@@ -90,9 +98,11 @@ const BuildingScreen = () => {
             structure: editingBuilding?.structure,
             area: editingBuilding?.area,
             type: editingBuilding?.type,
+            status: editingBuilding?.status,
             description: editingBuilding?.description,
             number_of_basement: editingBuilding?.number_of_basement,
-            price: editingBuilding?.price
+            price: editingBuilding?.price,
+            map_id: editingBuilding?.map_id
         }
         await handleApiBuilding(`/api/admin/buildings`, payload, "post", auth?.token)
             .then(res => message.success("Clone Building successfully!"))
@@ -112,9 +122,11 @@ const BuildingScreen = () => {
             structure: editingBuilding?.structure,
             area: editingBuilding?.area,
             type: editingBuilding?.type,
+            status: editingBuilding?.status,
             description: editingBuilding?.description,
             number_of_basement: editingBuilding?.number_of_basement,
             price: editingBuilding?.price,
+            map_id: editingBuilding?.map_id,
         }
         await handleApiBuilding(`/api/admin/buildings/${id}`, payload, "patch", auth?.token)
             .then(res => message.success("Update Building successfully!"))
@@ -127,12 +139,28 @@ const BuildingScreen = () => {
     
     useEffect(() => {
         handleApiBuilding("/api/admin/buildings", {}, "get", auth?.token)
-            .then(res => setBuildings(res?.data))
+            .then(res => {
+                setBuildings(res?.data);
+                console.log(res?.data);
+            })
             .catch(error=> {
                 message.error("Fetch error: ", error);
                 console.log("Fetch error: ", error);
             });
     }, [auth?.token]);
+
+    useEffect(() => {
+        handleAPI("/api/admin/maps", {}, "get", auth?.token)
+            .then(res => setMaps(res?.data))
+            .catch(error=> {
+                message.error("Fetch error: ", error);
+                console.log("Fetch error: ", error);
+            });
+    }, [auth?.token]);
+
+    useEffect(() => {
+        console.log(editingBuilding);
+    }, [editingBuilding]);
 
     const deleteById = async (id) =>{
         await handleApiBuilding(`/api/admin/buildings/${id}`, {}, "delete", auth?.token)
@@ -160,8 +188,10 @@ const BuildingScreen = () => {
                                 <th className="align-middle text-center">Gía</th>
                                 <th className="align-middle text-center">vị trí</th>
                                 <th className="align-middle text-center">kiểu</th>
+                                <th className="align-middle text-center">trạng thái</th>
                                 <th className="align-middle text-center">mô tả</th>
                                 <th className="align-middle text-center">số tầng</th>
+                                <th className="align-middle text-center">địa chỉ</th>
                                 <th colSpan={"5"}>Action</th>
                             </tr>
                             </thead>
@@ -176,7 +206,7 @@ const BuildingScreen = () => {
                                                        className="form-control"
                                                        id="file" name={"file"}
                                                        onChange={handleChooseFileChange}
-                                                       style={{ width: "250px" }}
+                                                       style={{width: "250px"}}
                                                 />
                                             ) : (
                                                 <img src={`data:${building?.file_type};base64,${building?.image}`}
@@ -185,7 +215,7 @@ const BuildingScreen = () => {
                                             )}
                                         </td>
                                         <td>
-                                        {editingBuilding?.id === building.id ? (
+                                            {editingBuilding?.id === building.id ? (
                                                 <input
                                                     type="text"
                                                     value={editingBuilding.name}
@@ -261,6 +291,30 @@ const BuildingScreen = () => {
                                         </td>
                                         <td>
                                             {editingBuilding?.id === building.id ? (
+                                                <select name="status" onChange={(e) => setEditingBuilding({
+                                                    ...editingBuilding,
+                                                    status: e.target.value
+                                                })}>
+                                                    <option value={building?.status}>{building?.status}</option>
+                                                    <option value={"nhà chưa bán"}>
+                                                        {"nhà chưa bán"}
+                                                    </option>
+                                                    <option value={"nhà đã bán"}>
+                                                        {"nhà đã bán"}
+                                                    </option>
+                                                    <option value={"nhà đã cho thuê"}>
+                                                        {"nhà đã cho thuê"}
+                                                    </option>
+                                                    <option value={"nhà chưa thuê"}>
+                                                        {"nhà chưa thuê"}
+                                                    </option>
+                                                </select>
+                                            ) : (
+                                                <textarea value={building.status} readOnly/>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {editingBuilding?.id === building.id ? (
                                                 <input
                                                     type="text"
                                                     value={editingBuilding.description}
@@ -286,6 +340,27 @@ const BuildingScreen = () => {
                                             ) : (
                                                 <textarea value={building.number_of_basement} readOnly/>
                                             )}
+                                        </td>
+                                        <td>
+                                            {editingBuilding?.id === building.id ? (
+                                                <select name="map_id" onChange={(e) => setEditingBuilding({
+                                                    ...editingBuilding,
+                                                    map_id: e.target.value
+                                                })}>
+                                                    <option value={building?.map?.id}>
+                                                        {building?.map?.map_name}
+                                                    </option>
+                                                    {maps.map((map, index) => (
+                                                        <option key={index} value={map?.id}>
+                                                            {map?.map_name}
+                                                        </option>
+                                                    ))
+                                                    }
+                                                </select>
+                                            ) : (
+                                                <textarea value={building?.map?.map_name} readOnly/>
+                                            )}
+
                                         </td>
                                         {editingBuilding?.id === building.id ?
                                             <td>
@@ -345,7 +420,9 @@ const BuildingScreen = () => {
                                                 <div>
                                                     <Button
                                                         className={'btn btn-info'}
-                                                        onClick={()=>{handleUpLoadClick(building)}}>
+                                                        onClick={() => {
+                                                            handleUpLoadClick(building)
+                                                        }}>
                                                         Đăng ảnh
                                                     </Button>
                                                 </div>

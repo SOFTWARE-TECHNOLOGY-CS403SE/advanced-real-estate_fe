@@ -47,7 +47,7 @@ const SiderComponent = () => {
             key: "room-chat",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/room-chat"}>
-                    Phòng chat
+                    Quản lý phòng chat
                 </Link>
             ),
             icon: <VscHome size={20} />,

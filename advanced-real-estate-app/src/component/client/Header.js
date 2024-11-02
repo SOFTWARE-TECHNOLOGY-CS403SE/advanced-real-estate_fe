@@ -11,7 +11,7 @@ import styles from "../../assets/css/header-client.module.css";
 const Header = () => {
 
     const auth = useSelector(authSelector);
-    const dispatch = useDispatch(); // Sử dụng useDispatch để tạo dispatch
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const logout = async ()=>{
         const token = auth?.token;
@@ -21,24 +21,18 @@ const Header = () => {
 
         try {
             const res = await handleAPI('/api/auth/logout', payload, 'post', token);
-            if(res?.code === 1006){
-                localStorage.removeItem("persist:root");
-            }
             if (res.code === 1000) {
                 message.success('Đăng xuất thành công!');
                 dispatch(removeAuth());
-                navigate('/');
+                navigate('/sign-in');
             } else {
                 message.error('Đăng xuất thất bại!');
             }
         } catch (error) {
             console.error("error: ", error);
             message.error(error.message);
-            if(error?.code === 1006){
-                localStorage.removeItem("persist:root");
-                dispatch(removeAuth());
-                navigate('/');
-            }
+            dispatch(removeAuth());
+            navigate('/sign-in');
         }
     }
 
@@ -109,36 +103,12 @@ const Header = () => {
                                     <Link to={"/buildings"} className="nav-item nav-link">
                                         VỀ TÒA NHÀ
                                     </Link>
-                                    <Link to={"/room-chat"} className="nav-item nav-link">
-                                        Phòng nhắn tin
+                                    <Link to={'/user/hop-dong'} className="nav-item nav-link">
+                                        HỢP ĐỒNG
                                     </Link>
                                     <Link to={"/dau-gia"} className="nav-item nav-link">
                                         DẤU GIÁ
                                     </Link>
-                                    <div className="nav-item dropdown">
-                                        <Link
-                                            to="#"
-                                            className="nav-link dropdown-toggle"
-                                            data-bs-toggle="dropdown"
-                                        >
-                                            TÀI KHOẢN
-                                        </Link>
-                                        <div className="dropdown-menu rounded-0 m-0">
-                                            <Link to={'/sign-in'} className="dropdown-item">
-                                                THÔNG TIN CÁ NHÂN
-                                            </Link>
-                                            <Link to={'/sign-in'} className="dropdown-item">
-                                                HÓA ĐƠN
-                                            </Link>
-                                            <Link to={'/sign-in'} className="dropdown-item">
-                                                ĐĂNG NHẬP
-                                            </Link>
-                                            <Link to={'/sign-up'} className="dropdown-item">
-                                                ĐĂNG KÝ
-                                            </Link>
-                                        </div>
-                                    </div>
-
                                     <div className="nav-item dropdown">
                                         <Link
                                             to="#"
@@ -151,8 +121,17 @@ const Header = () => {
                                             <Link to={'/contact'} className="dropdown-item">
                                                 LIÊN HỆ
                                             </Link>
+                                            <Link to={"/room-chat"} className="dropdown-item">
+                                                PHÒNG NHẮN TIN
+                                            </Link>
                                         </div>
                                     </div>
+                                    <Link to={"/sign-in"} className="nav-item nav-link">
+                                        ĐĂNG NHẬP
+                                    </Link>
+                                    <Link to={"/sign-up"} className="nav-item nav-link">
+                                        ĐĂNG KÝ
+                                    </Link>
                                 </div>
                                 {
                                     !auth?.token && Object.keys(auth.info).length === 0 ? (
@@ -173,10 +152,13 @@ const Header = () => {
                                                 className="nav-link dropdown-toggle"
                                             data-bs-toggle="dropdown"
                                         >
-                                            <i className="fa fa-user ms-3"/>
+                                            <i className="fa fa-user-secret ms-3"/>
                                             {" " + auth?.info?.username}
                                         </Link>
                                         <div className="dropdown-menu rounded-0 m-0">
+                                            <Link to={'/user/info'} className="dropdown-item">
+                                                THÔNG TIN CÁ NHÂN
+                                            </Link>
                                             <Link onClick={logout} className="dropdown-item" to={"#"}>
                                                 ĐĂNG XUẤT
                                             </Link>

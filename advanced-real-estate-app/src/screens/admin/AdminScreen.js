@@ -162,7 +162,7 @@ const AdminScreen = () => {
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#UploadModal"
                                                     >
-                                                        <GalleryImport />
+                                                        <GalleryImport/>
                                                     </button>
 
                                                     <div
@@ -189,13 +189,14 @@ const AdminScreen = () => {
                                                                     ></button>
                                                                 </div>
                                                                 <div className="modal-body">
-                                                                    <div className="d-flex justify-content-center align-items-center">
+                                                                    <div
+                                                                        className="d-flex justify-content-center align-items-center">
                                                                         <Upload
                                                                             listType="picture-card"
                                                                             fileList={fileList}
                                                                             onChange={onChange}
                                                                             onPreview={onPreview}
-                                                                            showUploadList={{ showPreviewIcon: false }}
+                                                                            showUploadList={{showPreviewIcon: false}}
                                                                             beforeUpload={() => false}
                                                                         >
                                                                             {fileList.length < 1 && '+ Upload'}
@@ -233,7 +234,9 @@ const AdminScreen = () => {
                                                                     key: "1",
                                                                     label: (
                                                                         <>
-                                                                            <a data-bs-toggle="modal" data-bs-target="#EditModal">Cập Nhật Thông Tin</a>
+                                                                            <a data-bs-toggle="modal"
+                                                                               data-bs-target="#EditModal">Cập Nhật
+                                                                                Thông Tin</a>
                                                                         </>
                                                                     ),
                                                                 },
@@ -241,7 +244,8 @@ const AdminScreen = () => {
                                                                     key: "2",
                                                                     label: (
                                                                         <>
-                                                                            <a data-bs-toggle="modal" data-bs-target="#RemoveModal">Xóa</a>
+                                                                            <a data-bs-toggle="modal"
+                                                                               data-bs-target="#RemoveModal">Xóa</a>
                                                                         </>
                                                                     ),
                                                                 },
@@ -249,7 +253,9 @@ const AdminScreen = () => {
                                                                     key: "3",
                                                                     label: (
                                                                         <>
-                                                                            <a data-bs-toggle="modal" data-bs-target="#EditPassModal">Cập Nhật Mật Khẩu</a>
+                                                                            <a data-bs-toggle="modal"
+                                                                               data-bs-target="#EditPassModal">Cập Nhật
+                                                                                Mật Khẩu</a>
                                                                         </>
                                                                     ),
                                                                 },
@@ -260,22 +266,26 @@ const AdminScreen = () => {
                                                         onClick={() => setUpdateAdmin(value)}
                                                     >
                                                         <Button
-                                                            icon={<Setting2 />}
+                                                            icon={<Setting2/>}
                                                         />
                                                     </Dropdown>
                                                 </Space>
-                                            </Space>                                            
-                                            <div className="modal fade" id="EditModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            </Space>
+                                            <div className="modal fade" id="EditModal" tabIndex="-1"
+                                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                 <div className="modal-dialog modal-lg">
                                                     <div className="modal-content">
                                                         <div className="modal-header">
-                                                            <h5 className="modal-title" id="exampleModalLabel">Cập Nhật Tài Khoản</h5>
-                                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            <h5 className="modal-title" id="exampleModalLabel">Cập Nhật
+                                                                Tài Khoản</h5>
+                                                            <button type="button" className="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div className="modal-body">
                                                             <div className="row">
                                                                 <div className="col mb-3">
-                                                                    <label className="form-label float-start">Last Name</label>
+                                                                    <label className="form-label float-start">Last
+                                                                        Name</label>
                                                                     <input type="text" className="form-control" value={updateAdmin.lastName}
                                                                         onChange={(e) => setUpdateAdmin({
                                                                             ...updateAdmin,

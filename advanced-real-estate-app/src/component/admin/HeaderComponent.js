@@ -4,7 +4,8 @@ import { colors } from '../../constants/colors';
 import { useDispatch, useSelector } from 'react-redux';
 import { authSelector, removeAuth } from '../../redux/reducers/authReducer';
 import { useNavigate } from 'react-router-dom';
-import handleAPI from '../../apis/handlAPI'; // Import handleAPI để gọi API
+import handleAPI from '../../apis/handlAPI';
+import {appInfo} from "../../constants/appInfos"; // Import handleAPI để gọi API
 
 const HeaderComponent = () => {
     const user = useSelector(authSelector);
@@ -62,7 +63,7 @@ const HeaderComponent = () => {
                         icon={<Notification size={22} color={colors.gray600} />}
                     />
                     <Dropdown menu={{ items }}>
-                        <Avatar src={user.photoUrl} size={40} />
+                        <Avatar src={user?.info?.avatar || appInfo.avatar} size={40} />
                     </Dropdown>
                 </Space>
             </div>

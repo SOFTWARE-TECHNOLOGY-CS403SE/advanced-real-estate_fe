@@ -164,35 +164,33 @@ const ChatComponent = (
             ) : (
                 <div className={styles.chatContainer}>
                     <div className={styles.chatHeader}>
-                        <h2>Room: {room}</h2>
-                        <h3>Username: {auth?.info?.username}</h3>
-                        <b>{countUser}</b>
-                        <button onClick={disconnect}>Thoát phòng</button>
+                        <h2>Phòng: {room}</h2>
+                        <h3>Người dùng: {auth?.info?.username}</h3>
+                        <span className={styles.userCount}>{countUser} người</span>
+                        <button className={styles.exitButton} onClick={disconnect}>Thoát phòng</button>
                     </div>
 
                     <div className={styles.chatMessages} ref={chatContainerRef}>
                         <ul>
                             {messages.map((msg, index) => (
-                                <li key={index}>
+                                <li key={index} className={styles.messageItem}>
                                     <div className={
-                                        msg.content !== null && msg.sender !== undefined ?
-                                            (msg.sender === auth?.info?.email ?
-                                                `${styles.chatMessage} ${styles.chatMessageSelf}` :
-                                                `${styles.chatMessage} ${styles.chatMessageOther}`) : ''}>
+                                        msg.content !== null && msg.sender !== undefined
+                                            ? (msg.sender === auth?.info?.email
+                                                ? `${styles.chatMessage} ${styles.chatMessageSelf}`
+                                                : `${styles.chatMessage} ${styles.chatMessageOther}`)
+                                            : ''
+                                    }>
                                         <b>
                                             {msg.content === null ? '' : msg.sender === undefined ? '' :
                                                 msg.sender === null ? 'Anonymous: ' : msg.sender + ": "}
                                         </b>
-                                        <span>
-                                            {msg.content}
-                                        </span>
+                                        <span>{msg.content}</span>
                                     </div>
 
                                     {msg?.bot && (
                                         <div className={`${styles.chatMessage} ${styles.chatBot}`}>
-                                            <span>
-                                                 <b>Bot: </b>{msg.bot}
-                                            </span>
+                                            <span><b>Bot: </b>{msg.bot}</span>
                                         </div>
                                     )}
                                 </li>
@@ -200,16 +198,18 @@ const ChatComponent = (
                         </ul>
                     </div>
 
-                    <div className={styles.chatInput}>
+                    <div className={styles.chatInputContainer}>
                         <input
+                            className={styles.chatInput}
                             type="text"
                             value={userData.message}
                             onChange={handleMessageChange}
-                            placeholder="Type your message here..."
+                            placeholder="Nhập tin nhắn..."
                         />
-                        <button onClick={sendMessage}>Send</button>
+                        <button className={styles.sendButton} onClick={sendMessage}>Gửi</button>
                     </div>
                 </div>
+
             )}
         </div>
     );

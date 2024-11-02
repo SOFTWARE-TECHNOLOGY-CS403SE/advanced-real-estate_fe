@@ -1,4 +1,5 @@
 import React from 'react';
+import {appInfo} from "../../constants/appInfos";
 
 const Welcome = () => {
     return (
@@ -12,7 +13,7 @@ const Welcome = () => {
                             </h6>
                             <h1 className="mb-4">
                                 Welcome to{" "}
-                                <span className="text-primary text-uppercase">Hotelier</span>
+                                <span className="text-primary text-uppercase">{appInfo.title}</span>
                             </h1>
                             <p className="mb-4">
                                 Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
