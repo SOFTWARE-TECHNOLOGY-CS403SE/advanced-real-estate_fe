@@ -91,7 +91,7 @@ const ClientRouter = () => {
                 {currentRoute?.showBanner && <Banner />}
                 {currentRoute?.showFilter && <Filter />}
             </div>
-            <div>
+            <div className={`contentClient`}>
                 <Routes>
                     {routes.map(
                         (route, index)=>(
