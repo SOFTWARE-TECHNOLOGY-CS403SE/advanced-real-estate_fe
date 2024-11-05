@@ -19,6 +19,7 @@ import {appVariables} from "../constants/appVariables";
 import handleAPI from "../apis/handlAPI";
 import {fetchUser} from "../apis/api";
 import { message } from "antd";
+import AuctionScreen from "../screens/admin/AuctionScreen";
 
 const { Content } = Layout;
 
@@ -166,6 +167,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin/map">
                                     <MapScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="auction"
+                            element={
+                                <PrivateRoute path="/admin/auction">
+                                    <AuctionScreen />
                                 </PrivateRoute>
                             }
                         />

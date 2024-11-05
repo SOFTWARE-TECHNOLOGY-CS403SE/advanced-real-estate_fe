@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import styles from "../../assets/css/building.module.css";
-import Modal from "../../component/building/Modal";
 import {appVariables} from "../../constants/appVariables";
 import handleAPI from "../../apis/handlAPI";
 import {useDispatch, useSelector} from "react-redux";

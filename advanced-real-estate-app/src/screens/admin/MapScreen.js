@@ -100,7 +100,7 @@ const MapScreen = () => {
 
     const deleteById = async (id) =>{
         await handleAPI(`/api/admin/maps/${id}`, {}, "delete", auth?.token)
-            .then(res => message.success("Delete Building successfully!"))
+            .then(res => message.success("Delete successfully!"))
             .catch(error=> {
                 message.error("Delete error: ", error);
                 console.log("Delete error: ", error);

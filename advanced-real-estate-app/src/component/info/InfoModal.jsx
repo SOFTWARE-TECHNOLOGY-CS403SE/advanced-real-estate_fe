@@ -5,7 +5,7 @@ import handleAPI from "../../apis/handlAPI";
 import {message} from "antd";
 import {useNavigate} from "react-router-dom";
 
-const ModalInfo = ({user, setUser, getUserInfo}) => {
+const InfoModal = ({user, setUser, getUserInfo}) => {
     const auth = useSelector(authSelector);
     const [info, setInfo] = useState(null);
     const dispatch = useDispatch();
@@ -145,4 +145,4 @@ const ModalInfo = ({user, setUser, getUserInfo}) => {
 };
 
 
-export default ModalInfo;
+export default InfoModal;

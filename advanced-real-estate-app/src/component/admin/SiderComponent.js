@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Layout, Menu, Typography } from "antd";
-import {Home2, Map1, House, Profile2User, User, TruckTick, HomeTrendDown} from "iconsax-react";
+import {Home2, Map1, House, Profile2User, User, TruckTick, HomeTrendDown, Location} from "iconsax-react";
 import { Link } from "react-router-dom";
 import { appInfo } from "../../constants/appInfos";
 import { colors } from "../../constants/colors";
@@ -90,8 +90,18 @@ const SiderComponent = () => {
                     Quản Lý bản đồ
                 </Link>
             ),
-            icon: <Map1 size={20} />,
+            icon: <Location size={20} />,
             url: path + "/map",
+        },
+        {
+            key: "auction",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/auction"}>
+                    Quản Lý phiên đấu giá
+                </Link>
+            ),
+            icon: <House size={20} />,
+            url: path + "/auction",
         },
     ];
 

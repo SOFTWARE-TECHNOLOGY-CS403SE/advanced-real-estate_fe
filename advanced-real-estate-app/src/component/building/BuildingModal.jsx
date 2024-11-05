@@ -13,7 +13,7 @@ import {
 } from "../../redux/reducers/buildingReducer";
 import {useDispatch, useSelector} from "react-redux";
 
-const Modal = () => {
+const BuildingModal = () => {
 
     const buildingReducer = useSelector(buildingSelector);
     const dispatch = useDispatch();
@@ -124,4 +124,4 @@ const Modal = () => {
     );
 };
 
-export default Modal;
+export default BuildingModal;

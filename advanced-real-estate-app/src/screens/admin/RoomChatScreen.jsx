@@ -88,7 +88,7 @@ const RoomChatScreen = () => {
             description: editingRoomChat?.description,
         }
         await handleApiRequest(`/api/admin/room-chats`, payload, "post", auth?.token)
-            .then(res => message.success("Clone Building successfully!"))
+            .then(res => message.success("Clone successfully!"))
             .catch(error=> {
                 message.error("Clone error: ", error);
                 console.log("Clone error: ", error);
@@ -106,7 +106,7 @@ const RoomChatScreen = () => {
             description: editingRoomChat?.description,
         }
         await handleApiBuilding(`/api/admin/room-chats/${id}`, payload, "patch", auth?.token)
-            .then(res => message.success("Update Building successfully!"))
+            .then(res => message.success("Update successfully!"))
             .catch(error=> {
                 message.error("Update error: ", error);
                 console.log("Update error: ", error);
@@ -125,7 +125,7 @@ const RoomChatScreen = () => {
 
     const deleteById = async (id) =>{
         await handleApiRequest(`/api/admin/room-chats/${id}`, {}, "delete", auth?.token)
-            .then(res => message.success("Delete Building successfully!"))
+            .then(res => message.success("Delete successfully!"))
             .catch(error=> {
                 message.error("Delete error: ", error);
                 console.log("Delete error: ", error);
@@ -137,7 +137,7 @@ const RoomChatScreen = () => {
         <div>
             <div>
                 <div className="card">
-                    <div className="card-header">Danh Sách tòa nhà</div>
+                    <div className="card-header">Danh Sách phòng nhắn tin</div>
                     <div className="card-body">
                         <div className="table-responsive">
                             <table className="table table-bordered">

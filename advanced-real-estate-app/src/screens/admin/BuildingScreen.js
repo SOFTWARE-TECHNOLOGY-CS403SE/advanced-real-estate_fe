@@ -40,7 +40,7 @@ const BuildingScreen = () => {
             description: building?.description,
             number_of_basement: building?.number_of_basement,
             price: building?.price,
-            map_id: building?.map_id
+            map_id: building?.map?.id
         });
     };
 
@@ -105,7 +105,7 @@ const BuildingScreen = () => {
             map_id: editingBuilding?.map_id
         }
         await handleApiBuilding(`/api/admin/buildings`, payload, "post", auth?.token)
-            .then(res => message.success("Clone Building successfully!"))
+            .then(res => message.success("Clone successfully!"))
             .catch(error=> {
                 message.error("Clone error: ", error);
                 console.log("Clone error: ", error);
@@ -129,7 +129,7 @@ const BuildingScreen = () => {
             map_id: editingBuilding?.map_id,
         }
         await handleApiBuilding(`/api/admin/buildings/${id}`, payload, "patch", auth?.token)
-            .then(res => message.success("Update Building successfully!"))
+            .then(res => message.success("Update successfully!"))
             .catch(error=> {
                 message.error("Update error: ", error);
                 console.log("Update error: ", error);
@@ -158,13 +158,9 @@ const BuildingScreen = () => {
             });
     }, [auth?.token]);
 
-    useEffect(() => {
-        console.log(editingBuilding);
-    }, [editingBuilding]);
-
     const deleteById = async (id) =>{
         await handleApiBuilding(`/api/admin/buildings/${id}`, {}, "delete", auth?.token)
-            .then(res => message.success("Delete Building successfully!"))
+            .then(res => message.success("Delete successfully!"))
             .catch(error=> {
                 message.error("Delete error: ", error);
                 console.log("Delete error: ", error);

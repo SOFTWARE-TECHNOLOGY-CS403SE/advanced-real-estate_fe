@@ -53,11 +53,11 @@ const Header = () => {
                             <div className="col-lg-7 px-5 text-start">
                                 <div className="h-100 d-inline-flex align-items-center py-2 me-4">
                                     <i className="fa fa-envelope text-primary me-2"/>
-                                    <p className="mb-0">info@example.com</p>
+                                    <p className="mb-0">{appInfo.email}</p>
                                 </div>
                                 <div className="h-100 d-inline-flex align-items-center py-2">
-                                    <i className="fa fa-phone-alt text-primary me-2"/>
-                                    <p className="mb-0">+012 345 6789</p>
+                                    <i className="fa fa-phone text-primary me-2"/>
+                                    <p className="mb-0">{appInfo.phoneNumber}</p>
                                 </div>
                             </div>
                             <div className="col-lg-5 px-5 text-end">

@@ -7,7 +7,7 @@ import {authSelector} from "../../redux/reducers/authReducer";
 import {buildingSelector, failed, setSelectedArea, success} from "../../redux/reducers/buildingReducer";
 import styles from "../../assets/css/building.module.css";
 import {appVariables} from "../../constants/appVariables";
-import Modal from "./Modal";
+import BuildingModal from "./BuildingModal";
 
 const BuildingComponent = () => {
     const buildingReducer = useSelector(buildingSelector);
@@ -110,7 +110,7 @@ const BuildingComponent = () => {
 
                             </div>
                         }
-                        <Modal/>
+                        <BuildingModal/>
 
                         {currentBuildings.map((building, index) => (
                             <div
@@ -124,9 +124,10 @@ const BuildingComponent = () => {
                                 }}>
                                 <div className="room-item shadow rounded overflow-hidden">
                                     <div className="position-relative">
-                                        <img className="img-fluid"
-                                             src={`data:${building?.file_type};base64,${building?.image}`}
-                                             alt={building?.file_type}/>
+                                        <img src={`data:${building?.file_type};base64,${building?.image}`}
+                                             alt={building?.file_type}
+                                             width={"100%"} height={"300px"}
+                                        />
                                         <small
                                             className="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">
                                             <i className="fa fa-money text-default me-2"/>
@@ -153,15 +154,15 @@ const BuildingComponent = () => {
                                                 <i className="fa fa-arrows text-primary me-2"/>
                                                 {`Diện tích ${building?.area}`}
                                             </small>
-                                            <small>
+                                            <small className="border-end me-3 pe-3">
                                                 <i className="fa fa-home text-primary me-2"/>
                                                 {`Số tầng ${building?.number_of_basement}`}
                                             </small>
-                                            <small>
+                                            <small className="border-end me-3 pe-3">
                                                 <i className="fa fa-circle text-primary me-2"/>
                                                 {`Loại nhà ${building?.type}`}
                                             </small>
-                                            <small>
+                                            <small className="border-end me-3 pe-3">
                                                 <i className="fa fa-map-marker text-primary me-2"/>
                                                 {`Đường ${building?.map?.address}`}
                                             </small>
@@ -169,7 +170,7 @@ const BuildingComponent = () => {
                                         <div className="d-flex justify-content-between">
                                             <Link className="btn btn-sm btn-primary rounded w-100"
                                                   to={`/buildings/${building?.id}`}>
-                                                XEM CHI TIẾT
+                                            XEM CHI TIẾT
                                             </Link>
                                         </div>
                                     </div>

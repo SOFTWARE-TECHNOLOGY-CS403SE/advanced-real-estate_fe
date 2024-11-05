@@ -6,7 +6,7 @@ import {useNavigate} from "react-router-dom";
 import styles from "../../assets/css/info.module.css";
 import {message, Upload} from "antd";
 import {setSelectedArea, setSelectedStructure, setSelectedType} from "../../redux/reducers/buildingReducer";
-import ModalInfo from "../../component/info/ModalInfo";
+import InfoModal from "../../component/info/InfoModal";
 import handleAPI from "../../apis/handlAPI";
 
 const InfoUserScreen = () => {
@@ -42,7 +42,7 @@ const InfoUserScreen = () => {
                 paddingTop: "150px"
             }
         }>
-            <ModalInfo
+            <InfoModal
                 getUserInfo={getUserInfo}
                 user={user}
                 setUser={setUser}

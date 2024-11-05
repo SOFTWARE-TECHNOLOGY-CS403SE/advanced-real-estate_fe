@@ -1,7 +1,12 @@
 import React from 'react';
 import {appInfo} from "../../constants/appInfos";
+import {useSelector} from "react-redux";
+import {buildingSelector} from "../../redux/reducers/buildingReducer";
 
 const Welcome = () => {
+
+    const buildingReducer = useSelector(buildingSelector);
+
     return (
         <div>
             <div className="container-xxl py-5">
@@ -32,11 +37,11 @@ const Welcome = () => {
                                 >
                                     <div className="border rounded p-1">
                                         <div className="border rounded text-center p-4">
-                                            <i className="fa fa-hotel fa-2x text-primary mb-2"/>
+                                            <i className="fa fa-home fa-2x text-primary mb-2"/>
                                             <h2 className="mb-1" data-toggle="counter-up">
-                                                1234
+                                                {buildingReducer?.buildings?.length}
                                             </h2>
-                                            <p className="mb-0">Rooms</p>
+                                            <p className="mb-0">Nhà</p>
                                         </div>
                                     </div>
                                 </div>
@@ -51,11 +56,11 @@ const Welcome = () => {
                                 >
                                     <div className="border rounded p-1">
                                         <div className="border rounded text-center p-4">
-                                            <i className="fa fa-users-cog fa-2x text-primary mb-2"/>
+                                            <i className="fa fa-users fa-2x text-primary mb-2"/>
                                             <h2 className="mb-1" data-toggle="counter-up">
                                                 1234
                                             </h2>
-                                            <p className="mb-0">Staffs</p>
+                                            <p className="mb-0">Nhân viên</p>
                                         </div>
                                     </div>
                                 </div>
@@ -74,7 +79,7 @@ const Welcome = () => {
                                             <h2 className="mb-1" data-toggle="counter-up">
                                                 1234
                                             </h2>
-                                            <p className="mb-0">Clients</p>
+                                            <p className="mb-0">Khách hàng</p>
                                         </div>
                                     </div>
                                 </div>
