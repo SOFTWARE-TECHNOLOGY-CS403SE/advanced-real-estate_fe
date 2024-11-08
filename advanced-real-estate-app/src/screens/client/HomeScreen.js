@@ -10,6 +10,7 @@ import BuildingComponent from "../../component/building/BuildingComponent";
 import {appInfo} from "../../constants/appInfos";
 import {appVariables} from "../../constants/appVariables";
 import RoomAuctionComponent from "../../component/daugia/RoomAuctionComponent";
+import DauGiaComponent from "../../component/daugia/DauGiaComponent";
 
 
 let stompClient = null;
@@ -36,7 +37,7 @@ const HomeScreen = () => {
                         </h1>
                     </div>
                     <div>
-                        <RoomAuctionComponent pageSize={4}/>
+                        <DauGiaComponent/>
                     </div>
 
                 </div>

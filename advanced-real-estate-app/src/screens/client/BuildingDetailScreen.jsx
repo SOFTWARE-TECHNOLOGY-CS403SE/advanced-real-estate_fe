@@ -14,6 +14,7 @@ import {
 } from "../../redux/reducers/buildingReducer";
 import handleAPINotToken from "../../apis/handleAPINotToken";
 import LeafLetMapComponent from "../../component/map/LeafLetMapComponent";
+import DistanceMapComponent from "../../component/map/DistanceMapComponent";
 
 const BuildingDetailScreen = () => {
 
@@ -24,19 +25,7 @@ const BuildingDetailScreen = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [isExpanded, setIsExpanded] = useState(false);
-
-    const toggleDescription = () => {
-        setIsExpanded(!isExpanded);
-    };
-    const fetchData = async ()=> {
-        try {
-            const res = await handleAPI(`/api/user/buildings/${id}`, {}, "get");
-           setBuilding(res?.data);
-            console.log(res?.data);
-        } catch (error) {
-            console.log("error: ",error);
-        }
-    }
+    const [currentLocation, setCurrentLocation] = useState(null);
 
     useEffect(() => {
         fetchData().then();
@@ -45,6 +34,50 @@ const BuildingDetailScreen = () => {
     useEffect(() => {
         // console.log(building);
     }, [building]);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
+                    handleAPINotToken(url, {}, 'GET')
+                    .then(res => {
+                        const buildingLat = parseFloat(building?.map?.latitude);
+                        const buildingLon = parseFloat(building?.map?.longitude);
+                        const currentLat = position.coords.latitude;
+                        const currentLon = position.coords.longitude;
+                        const distance = appVariables.calculateDistance(currentLat, currentLon, buildingLat, buildingLon);
+                        setCurrentLocation({
+                            ...res,
+                            km: `${distance?.toFixed(2)} km`
+                        });
+                    })
+                    .catch(error=>{
+                        console.log('Fetch error: ', error);
+                    });
+                },
+                (error) => {
+                    console.log("Error getting location: " + error.message);
+                }
+            );
+        } else {
+            console.log("Geolocation is not supported by this browser.");
+            appVariables.toast_notify_warning("Vui lòng bật định vị của bạn lên để chúng tôi xác định khoách cách từ vị trí của bạn đến vị trí tòa nhà!");
+        }
+    }, [building]);
+
+    const toggleDescription = () => {
+        setIsExpanded(!isExpanded);
+    };
+    const fetchData = async ()=> {
+        try {
+            const res = await handleAPI(`/api/user/buildings/${id}`, {}, "get");
+            setBuilding(res?.data);
+            console.log(res?.data);
+        } catch (error) {
+            console.log("error: ",error);
+        }
+    }
     
     const handleClickKyHopDong = () => {
       if(!auth?.info?.firstName ||
@@ -58,17 +91,6 @@ const BuildingDetailScreen = () => {
           return;
       }
       dispatch(addBuildingDetails(building));
-    }
-
-    const getLocationData = async (lat, lon) => {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-        try {
-            const data = await handleAPINotToken(url, {}, 'GET');
-
-            // console.log(data);
-        } catch (error) {
-            console.error('Error fetching location data:', error);
-        }
     }
 
 
@@ -169,10 +191,19 @@ const BuildingDetailScreen = () => {
                                         <strong>Số tầng:</strong> {building?.number_of_basement}
                                     </div>
                                     <div className="col-md-12 mb-3">
-                                        <i className="fa fa-map-marker text-primary me-2"/>
+                                        <i className="fa fa-map text-primary me-2"/>
                                         <strong>Địa chỉ:</strong> {building?.map?.map_name}
                                     </div>
-
+                                    <div className="col-md-12 mb-3">
+                                        <i className="fa fa-map-marker text-primary me-2"/>
+                                        <strong>Vị trí hiện tại của bạn:</strong>
+                                        {' ' + currentLocation?.display_name}
+                                    </div>
+                                    <div className="col-md-12 mb-3">
+                                        <i className="fa fa-motorcycle text-primary me-2"/>
+                                        <strong>Khoảng cách:</strong>
+                                        {' ' + currentLocation?.km}
+                                    </div>
                                 </div>
                                 <h4 className="mt-3">Mô tả: </h4>
                                 <p className={`text-muted ${isExpanded ? '' : styles.collapsedDescription}`}>
@@ -181,16 +212,19 @@ const BuildingDetailScreen = () => {
                                 <Link onClick={toggleDescription} to={'#'}>
                                     {isExpanded ? 'Thu gọn' : 'Xem thêm'}
                                 </Link>
-                                <div style={{ paddingTop: '20px' }}>
-                                    <LeafLetMapComponent latitude={building?.map?.latitude}
-                                                         longitude={building?.map?.longitude}
-                                    />
-                                </div>
-                                <div style={{ paddingTop: '20px' }}>
+                                <div style={{paddingTop: '20px'}}>
                                     <button className={"btn btn-primary"}
                                             onClick={handleClickKyHopDong}>
                                         Ký hợp đồng ngay
                                     </button>
+                                </div>
+                                <div style={{paddingTop: '20px'}}>
+                                    {/*<LeafLetMapComponent buildingLocation={building?.map}*/}
+                                    {/*                     currentLocation={currentLocation}*/}
+                                    {/*/>*/}
+                                    <DistanceMapComponent buildingLocation={{...building?.map}}
+                                                          currentLocation={currentLocation}
+                                    />
                                 </div>
                             </div>
                         </div>

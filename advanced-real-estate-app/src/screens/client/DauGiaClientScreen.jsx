@@ -5,6 +5,9 @@ import DauGiaComponent from "../../component/daugia/DauGiaComponent";
 import RoomAuctionComponent from "../../component/daugia/RoomAuctionComponent";
 
 const DauGiaClientScreen = () => {
+
+
+
     return (
         <div style={
             {
@@ -40,7 +43,7 @@ const DauGiaClientScreen = () => {
                                     animationName: "fadeInUp"
                                 }}
                             >
-                                <RoomAuctionComponent pageSize={4}/>
+                                <DauGiaComponent/>
 
                             </div>
                         </div>

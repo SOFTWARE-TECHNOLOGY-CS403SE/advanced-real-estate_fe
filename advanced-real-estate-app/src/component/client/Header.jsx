@@ -7,6 +7,7 @@ import {authSelector, removeAuth} from "../../redux/reducers/authReducer";
 import handleAPI from "../../apis/handlAPI";
 import {message} from "antd";
 import styles from "../../assets/css/header-client.module.css";
+import {updatedAuctionRoom} from "../../redux/reducers/auctionReducer";
 
 const Header = () => {
 
@@ -18,7 +19,9 @@ const Header = () => {
         const payload = {
             token: token
         };
-
+        dispatch(updatedAuctionRoom({
+            connected: false,
+        }));
         try {
             const res = await handleAPI('/api/auth/logout', payload, 'post', token);
             if (res.code === 1000) {
@@ -107,7 +110,7 @@ const Header = () => {
                                         HỢP ĐỒNG
                                     </Link>
                                     <Link to={"/dau-gia"} className="nav-item nav-link">
-                                        DẤU GIÁ
+                                        ĐẤU GIÁ
                                     </Link>
                                     <div className="nav-item dropdown">
                                         <Link

@@ -5,6 +5,7 @@ import {Link, useNavigate} from "react-router-dom";
 import handleAPINotToken from "../../apis/handleAPINotToken";
 import {message} from "antd";
 import {appVariables} from "../../constants/appVariables";
+import styles from '../../assets/css/detail-auction-modal.module.css';
 
 const DetailAuctionModal = ({auctionId}) => {
 
@@ -45,25 +46,83 @@ const DetailAuctionModal = ({auctionId}) => {
                         </div>
                         <div className="modal-body">
                             <div className="col-md-12">
-                                <h3>Phiên {auction?.name}</h3>
-                                <h3>Ngày bắt đầu: {auction?.start_date}</h3>
-                                <h3>Thời hạn đấu giá: {`${auction?.start_time} - ${auction?.end_time}`}</h3>
-                                <h3>Mô tả: {auction?.description}</h3>
-                                <div>
-                                    <h3>Thông tin nhà đấu giá</h3>
-                                    <b>Nhà đấu giá: {auction?.building?.name}</b>
+                                <div className={styles.auctionInfo}>
+                                    <div className={styles.auctionColumn}>
+                                        <span>
+                                             <i className="fa fa-balance-scale text-primary"></i>
+                                            {' Phiên: ' + auction?.name}
+                                        </span>
+                                        <br/>
+                                        <span>
+                                            <i className="fa fa-calendar text-primary"></i>
+                                            {' Ngày bắt đầu: ' + auction?.start_date}
+                                        </span>
+                                        <br/>
+                                        <span>
+                                            <i className="fa fa-circle text-primary"></i>
+                                            {' Trạng thái:'} {
+                                            appVariables.checkStatus(auction?.start_date, auction?.start_time, auction?.end_time) ===
+                                            appVariables.BEFORE ? (
+                                                    <span className={'text-primary'}>
+                                                Chưa bắt đầu
+                                            </span>) :
+                                                appVariables.checkStatus(auction?.start_date, auction?.start_time, auction?.end_time) ===
+                                                appVariables.NOW ? (
+                                                    <span className={'text-success'}>
+                                                Đang bắt đầu
+                                            </span>) : (
+                                                    <span className={'text-danger'}>
+                                                Đã kết thúc
+                                            </span>
+                                                )
+                                        }
+                                        </span>
+                                    </div>
+                                    <div className={styles.auctionColumn}>
+                                        <i className="fa fa-clock text-primary"></i>
+                                        <span>{` Thời hạn đấu giá: ${auction?.start_time} - ${auction?.end_time}`}</span>
+                                        <br/>
+                                        <i className="fa fa-info text-primary"></i>
+                                        <span>{' Mô tả: ' + auction?.description}</span>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div className={styles.buildingInfo}>
+                                    <h6>Thông tin nhà đấu giá</h6>
+                                    <span>
+                                        <i className="fa fa-money text-primary me-2"/>
+                                        {' Nhà đấu giá: ' + auction?.building?.name}
+                                    </span>
                                     <br/>
-                                    <b>Diện tích nhà: {auction?.building?.area}</b>
+                                    <span>
+                                        <i className="fa fa-arrows text-primary me-2"/>
+                                        {' Diện tích nhà: ' + auction?.building?.area}
+                                    </span>
                                     <br/>
-                                    <b>Kiến trúc nhà: {auction?.building?.structure}</b>
+                                    <span>
+                                        <i className="fa fa-home text-primary me-2"/>
+                                        {' Kiến trúc nhà: ' + auction?.building?.structure}
+                                    </span>
                                     <br/>
-                                    <b>Số tầng: {auction?.building?.number_of_basement}</b>
+                                    <span>
+                                        <i className="fa fa-home text-primary me-2"/>
+                                        {' Số tầng: ' + auction?.building?.number_of_basement}
+                                    </span>
                                     <br/>
-                                    <b>Giá khởi điểm: {appVariables.formatMoney(auction?.building?.price)}</b>
+                                    <span>
+                                        <i className="fa fa-money text-primary me-2"/>
+                                        {' Giá khởi điểm: ' + appVariables.formatMoney(auction?.building?.price)}
+                                    </span>
                                     <br/>
-                                    <b>Địa chỉ: {auction?.map?.map_name}</b>
+                                    <span>
+                                        <i className="fa fa-map-marker text-primary me-2"/>
+                                        {' Địa chỉ: ' + auction?.map?.map_name}
+                                    </span>
                                     <br/>
-                                    <b>Tính pháp lý: sổ đỏ đầy đủ</b>
+                                    <span>
+                                        <i className="fa fa-briefcase text-primary me-2"/>
+                                        {' Tính pháp lý: sổ đỏ đầy đủ'}
+                                    </span>
                                 </div>
 
                             </div>

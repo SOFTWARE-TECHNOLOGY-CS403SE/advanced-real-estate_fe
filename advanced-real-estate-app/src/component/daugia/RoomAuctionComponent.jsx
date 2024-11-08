@@ -8,6 +8,7 @@ import {message} from "antd";
 import {add} from "../../redux/reducers/chatReducer";
 import {appVariables} from "../../constants/appVariables";
 import DetailAuctionModal from "./DetailAuctionModal";
+import {joinAuctionRoom} from "../../redux/reducers/auctionReducer";
 
 const RoomAuctionComponent = ({pageSize}) => {
 
@@ -30,26 +31,39 @@ const RoomAuctionComponent = ({pageSize}) => {
         .catch(error => console.error("Fetch error: ",error));
     }, []);
 
-    useEffect(() => {
-        console.log(auctionRooms);
-    }, [auctionRooms]);
-
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
-    const handleRoomChange = (roomId) => {
+    const handleRoomChange = (roomId, item) => {
         if(!auth?.token){
             message.error("Bạn không thể vào phòng vui lòng đăng nhập để vào đấu giá!");
             return;
         }
-        const data = {
+        const { building, map, ...auction } = item;
+        const { name, description } = item;
+        const { image, auctions, ...buildingDetail } = building;
+        const { buildings, ...mapDetail } = map;
+        const status = appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time);
+        if(status === appVariables.AFTER){
+            appVariables.toast_notify_error("Bạn không thể vào!. Phiên đấu giá này đã kết thúc!", 2000);
+            return;
+        }
+        const userJoinAuctionRoom = {
             roomId: roomId,
             userData : {
                 connected: true,
                 message: "",
+            },
+            auction: {
+                ...auction,
+                ...buildingDetail,
+                ...mapDetail,
+                nameAuction: name,
+                descriptionAuction: description
             }
-        }
+        };
+        dispatch(joinAuctionRoom(userJoinAuctionRoom));
     };
 
     return (
@@ -77,18 +91,18 @@ const RoomAuctionComponent = ({pageSize}) => {
                                         {' Trạng thái:'} {
                                         appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
                                         appVariables.BEFORE ? (
-                                                <span className={'text-primary'}>
+                                            <span className={'text-primary'}>
                                                 Chưa bắt đầu
                                             </span>) :
-                                            appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
-                                            appVariables.NOW ? (
-                                                <span className={'text-success'}>
-                                                Đang bắt đầu
+                                        appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
+                                        appVariables.NOW ? (
+                                            <span className={'text-success'}>
+                                            Đang bắt đầu
                                             </span>) : (
                                                 <span className={'text-danger'}>
                                                 Đã kết thúc
                                             </span>
-                                            )
+                                        )
                                     }
                                     </span>
                                 </div>
@@ -116,7 +130,7 @@ const RoomAuctionComponent = ({pageSize}) => {
                                 {/*<p className={styles.roomDescription}>{item.description}</p>*/}
                             </Link>
                             <div className={styles.linkContainer}>
-                                <Link onClick={() => handleRoomChange(item.id)}
+                                <Link onClick={() => handleRoomChange(item.id, item)}
                                       className={styles.linkJoin} to={'#'}>
                                     VÀO NGAY
                                 </Link>

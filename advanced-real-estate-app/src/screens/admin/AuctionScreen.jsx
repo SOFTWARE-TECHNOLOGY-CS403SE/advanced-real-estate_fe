@@ -228,7 +228,7 @@ const AuctionScreen = () => {
                                         <td>
                                             {editing?.id === item.id ? (
                                                 <input
-                                                    type="text"
+                                                    type="time"
                                                     value={editing.start_time}
                                                     onChange={(e) => setEditing({
                                                         ...editing,
@@ -242,7 +242,7 @@ const AuctionScreen = () => {
                                         <td>
                                             {editing?.id === item.id ? (
                                                 <input
-                                                    type="text"
+                                                    type="time"
                                                     value={editing.end_time}
                                                     onChange={(e) => setEditing({
                                                         ...editing,

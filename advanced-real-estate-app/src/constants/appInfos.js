@@ -3,6 +3,7 @@ import vitri1 from "../assets/img/vitri.png";
 import vitri2 from "../assets/img/vitri2_nobg.png";
 import vitri3 from "../assets/img/vitri3.png";
 import vitri4 from "../assets/img/vitri5-removebg-preview.png";
+import vitri5 from "../assets/img/2928883.png";
 import nha1 from "../assets/img/nha.png";
 
 export const appInfo = {
@@ -16,5 +17,6 @@ export const appInfo = {
 	vitri2: vitri2,
 	vitri3,
 	vitri4,
+	vitri5,
 	nha1
 };
