@@ -29,34 +29,23 @@ const UserRouter = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    useEffect(() => {
+    const addInitialCssLinks = () => {
         const addCssLink = (href) => {
             const link = document.createElement("link");
             link.rel = "stylesheet";
             link.href = href;
             document.head.appendChild(link);
         };
-
-        // Add links from public folder
+    
         addCssLink(`${process.env.PUBLIC_URL}/lib/animate/animate.min.css`);
         addCssLink(`${process.env.PUBLIC_URL}/lib/owlcarousel/assets/owl.carousel.min.css`);
         addCssLink(`${process.env.PUBLIC_URL}/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css`);
+        addCssLink(`https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css`);
         addCssLink(`${process.env.PUBLIC_URL}/css/bootstrap.min.css`);
         addCssLink(`${process.env.PUBLIC_URL}/css/style.css`);
-
-        return () => {
-            const links = document.head.querySelectorAll("link[rel='stylesheet']");
-            links.forEach((link) => {
-                if (link.href.includes("animate.min.css") ||
-                    link.href.includes("owl.carousel.min.css") ||
-                    link.href.includes("tempusdominus-bootstrap-4.min.css") ||
-                    link.href.includes("bootstrap.min.css") ||
-                    link.href.includes("style.css")) {
-                    document.head.removeChild(link);
-                }
-            });
-        };
-    }, []);
+    };
+    
+    addInitialCssLinks();
 
     useEffect(() => {
         if(auth?.token){
