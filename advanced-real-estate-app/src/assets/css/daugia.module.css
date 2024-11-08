@@ -226,8 +226,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    max-height: 300px; /* Giới hạn chiều cao tối đa */
-    overflow-y: auto; /* Cuộn dọc nếu nội dung vượt quá chiều cao */
+    overflow-y: auto;
 }
 
 .chatHeader {
@@ -236,14 +235,15 @@
 }
 
 .chatMessages {
-    max-height: 200px; /* Giới hạn chiều cao tối đa */
-    overflow-y: auto; /* Thêm cuộn dọc */
-    padding: 5px;
-    border: 1px solid #ddd; /* Thêm đường viền cho phần tin nhắn */
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 15px 0px 10px 10px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    background-color: #ffffff; /* Màu nền cho phần tin nhắn */
+    background-color: #ffffff;
     display: flex;
-    flex-direction: column; /* Đảm bảo tin nhắn được sắp xếp theo chiều dọc */
+    flex-direction: column;
+    height: 300px;
 }
 
 .message {
@@ -256,8 +256,30 @@
 }
 
 .messageText {
+    /*margin-top: 15px;*/
     margin-left: 5px;
     color: #555;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
 }
 
+.messageSelf {
+    background-color: #d1e7dd;
+    align-self: flex-end;
+    max-width: 70%;
+}
 
+.messageOther {
+    background-color: #f8d7da;
+    align-self: flex-start;
+    max-width: 70%;
+}
+
+.timeMessage{
+    margin-left: 10px;
+}
+
+.timeMessage span{
+    font-size: 13px;
+}

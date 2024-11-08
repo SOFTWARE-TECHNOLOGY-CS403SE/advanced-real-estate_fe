@@ -10,9 +10,13 @@ const customIcon = new L.Icon({
     iconSize: [30, 40],
     iconAnchor: [15, 40],
 });
-const LeafLetMapComponent = ({latitude, longitude}) => {
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
+const LeafLetMapComponent = ({buildingLocation, currentLocation}) => {
+    const lat = parseFloat(buildingLocation?.latitude);
+    const lon = parseFloat(buildingLocation?.longitude);
+
+    useEffect(() => {
+        console.log(currentLocation);
+    }, [currentLocation]);
 
     if (isNaN(lat) || isNaN(lon)) {
         return <p>Không thể hiển thị bản đồ do dữ liệu không hợp lệ.</p>;

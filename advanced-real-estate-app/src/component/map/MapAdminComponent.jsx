@@ -31,7 +31,36 @@ const MapAdminComponent = () => {
             display_name: ''
         }
     );
+    const [currentLocation, setCurrentLocation] = useState(null);
     const [address, setAddress] = useState('');
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    handleAPINotToken(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`,
+                        {},
+                        'GET'
+                    ).then(res => {
+                        setCurrentLocation({
+                            ...res,
+                        });
+                        setPosition({
+                            lat: parseFloat(position.coords.latitude),
+                            lon: parseFloat(position.coords.longitude),
+                            display_name: `Địa chỉ hiện tại của bạn: ${res?.display_name}`
+                        });
+                    });
+                },
+                (error) => {
+                    console.log("Error getting location: " + error.message);
+                }
+            );
+        } else {
+            console.log("Geolocation is not supported by this browser.");
+        }
+    }, []);
 
     const handleSearch = async () => {
         try {
@@ -46,7 +75,7 @@ const MapAdminComponent = () => {
                 setPosition({
                     lat: parseFloat(lat),
                     lon: parseFloat(lon),
-                    display_name
+                    display_name: `Địa chỉ: ${display_name}`
                 });
             } else {
                 message.error("Không tìm thấy vị trí!");
@@ -58,15 +87,18 @@ const MapAdminComponent = () => {
         }
     };
 
-    // useEffect(() => {
-    //     if(address.length > 1){
-    //         handleSearch().then();
-    //     }
-    // }, [address]);
-
     return (
         <div>
             <h4 className={styles.searchTitle}>Tìm kiếm vị trí tòa nhà trên bản đồ</h4>
+            <p>
+                Địa chỉ hiện tại của bạn: {currentLocation?.display_name}
+            </p>
+            <p>
+                Vĩ độ hiện tại của bạn: {currentLocation?.lat}
+            </p>
+            <p>
+                Kinh độ hiện tại của bạn: {currentLocation?.lon}
+            </p>
             <div className={styles.searchContainer}>
                 <div className={`${styles.searchContent}`}>
                     <b>{'Nội dung bạn tìm kiếm: ' + address}</b>
@@ -95,17 +127,17 @@ const MapAdminComponent = () => {
                 }}
                 zoomControl={false}
             >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
                 <Marker position={[position.lat, position.lon]} icon={customIcon}>
                     <Popup>
-                        {'Vĩ độ: '+position.lat+ '\n'},
-                        {'Kinh độ: '+position.lon+ '\n'}
-                        {'Địa chỉ: '+position?.display_name}
+                        {'Vĩ độ: ' + position.lat + '\n'},
+                        {'Kinh độ: ' + position.lon + '\n'}
+                        {position?.display_name}
                     </Popup>
                 </Marker>
-                <ZoomControl position="topright" />
-                <ScaleControl position="bottomleft" />
-                <MapUpdater position={position} />
+                <ZoomControl position="topright"/>
+                <ScaleControl position="bottomleft"/>
+                <MapUpdater position={position}/>
             </MapContainer>
         </div>
     );
