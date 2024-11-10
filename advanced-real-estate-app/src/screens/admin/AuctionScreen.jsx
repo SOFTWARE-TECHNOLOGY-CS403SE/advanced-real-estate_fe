@@ -25,6 +25,10 @@ const AuctionScreen = () => {
     }, [editing]);
 
     useEffect(() => {
+        console.log(auctions);
+    }, [auctions]);
+
+    useEffect(() => {
         handleAPI("/api/admin/buildings", {}, "get", auth?.token)
             .then(res => {
                 setBuildings(res?.data);
@@ -54,7 +58,9 @@ const AuctionScreen = () => {
             start_time: item?.start_time,
             end_time: item?.end_time,
             description: item?.description,
+            active: item?.active,
             building_id: item?.building?.id,
+            userCreatedBy: auth?.info?.id,
         });
     };
 
@@ -66,7 +72,9 @@ const AuctionScreen = () => {
             start_time: item?.start_time,
             end_time: item?.end_time,
             description: item?.description,
+            active: item?.active,
             building_id: item?.building?.id,
+            userCreatedBy: auth?.info?.id,
         });
     };
 
@@ -79,7 +87,9 @@ const AuctionScreen = () => {
             start_time: editing?.start_time,
             end_time: editing?.end_time,
             description: editing?.description,
+            active: editing?.active,
             building_id: editing?.building_id,
+            userCreatedBy: editing?.userCreatedBy,
         }
         await handleAPI(`/api/admin/auctions`, payload, "post", auth?.token)
             .then(res => message.success("Clone successfully!"))
@@ -100,7 +110,9 @@ const AuctionScreen = () => {
             start_time: editing?.start_time,
             end_time: editing?.end_time,
             description: editing?.description,
-            building_id: editing?.building_id
+            active: editing?.active,
+            building_id: editing?.building_id,
+            userCreatedBy: editing?.userCreatedBy,
         }
         await handleAPI(`/api/admin/auctions/${id}`, payload, "patch", auth?.token)
             .then(res => {
@@ -135,8 +147,10 @@ const AuctionScreen = () => {
                                 <th className="align-middle text-center">ID</th>
                                 <th className="align-middle text-center">Ảnh nhà</th>
                                 <th className="align-middle text-center">Tên phiên đấu giá</th>
+                                <th className="align-middle text-center">Trạng thái hoạt động</th>
+                                <th className="align-middle text-center">Trạng thái phiên</th>
                                 <th className="align-middle text-center">Nhà đấu giá</th>
-                                <th className="align-middle text-center">Trạng thái</th>
+                                <th className="align-middle text-center">Người tạo</th>
                                 <th className="align-middle text-center">Ngày bắt đầu</th>
                                 <th className="align-middle text-center">Thời gian bắt đầu</th>
                                 <th className="align-middle text-center">Thời gian kết thúc</th>
@@ -173,19 +187,49 @@ const AuctionScreen = () => {
                                             {
                                                 appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time)
                                                 === appVariables.BEFORE ? (
-                                                    <span className={'text-warning'}>
+                                                        <span className={'text-warning'}>
                                                         Chưa bắt đầu
                                                     </span>) :
-                                                appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time)
-                                                === appVariables.NOW ? (
-                                                    <span className={'text-success'}>
+                                                    appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time)
+                                                    === appVariables.NOW ? (
+                                                        <span className={'text-success'}>
                                                         Đang bắt đầu
                                                     </span>) : (
-                                                    <span className={'text-danger'}>
+                                                        <span className={'text-danger'}>
                                                         Đã kết thúc
                                                     </span>
-                                                )
+                                                    )
                                             }
+                                        </td>
+                                        <td>
+                                            {editing?.id === item.id ? (
+                                                <select name="active" onChange={(e) => {
+                                                    setEditing({
+                                                        ...editing,
+                                                        active: e.target.value
+                                                    });
+                                                }}>
+                                                    <option value={item?.active}>
+                                                        {!item?.active ? 'Đang bị khóa' : 'Đang mở'}
+                                                    </option>
+                                                    <option value={false}>
+                                                        {'Khóa phiên đấu giá'}
+                                                    </option>
+                                                    <option value={true}>
+                                                        {'Mở phiên đấu giá'}
+                                                    </option>
+                                                </select>
+                                            ) : (
+                                                <span>
+                                                    {!item?.active ?
+                                                        (<span className={'text-danger'}>Đang bị khóa</span>) :
+                                                        (<span className={'text-success'}>
+                                                            Đang mở
+                                                        </span>
+                                                        )
+                                                    }
+                                                </span>
+                                            )}
                                         </td>
                                         <td>
                                             {editing?.id === item.id ? (
@@ -208,6 +252,23 @@ const AuctionScreen = () => {
                                             ) : (
                                                 <textarea value={`${item?.building?.name} - ${item?.building?.type}`}
                                                           readOnly/>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {editing?.id === item.id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editing.userCreatedBy}
+                                                    onChange={(e) => setEditing({
+                                                        ...editing,
+                                                        userCreatedBy: e.target.value
+                                                    })}
+                                                />
+                                            ) : (
+                                                <textarea
+                                                    value={`${item?.userCreatedBy?.email} - ${item?.userCreatedBy?.roles?.map(
+                                                        role => `${role?.name}, `)}`
+                                                    } readOnly/>
                                             )}
 
                                         </td>

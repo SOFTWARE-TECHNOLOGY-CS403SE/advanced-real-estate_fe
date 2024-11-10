@@ -18,14 +18,12 @@ import RoomAuctionComponent from "./RoomAuctionComponent";
 let stompClient= appVariables.stompClient;
 const DauGiaComponent = () => {
 
-
     const chatMessagesRef = useRef(null);
     const dispatch = useDispatch();
     const auctionReducer = useSelector(auctionSelector);
     const auth = useSelector(authSelector);
     const userData = auctionReducer?.userData;
     const roomId = auctionReducer?.roomId;
-    const [messages, setMessages] = useState([]);
     const [countUser, setCountUser] = useState("");
     const [timeLeft, setTimeLeft] = useState('');
     const [bidAmount, setBidAmount] = useState(0.0);
@@ -44,29 +42,38 @@ const DauGiaComponent = () => {
     }, [userData.connected, roomId]);
 
     useEffect(() => {
-        setBidAmount(parseFloat(auctionReducer?.auction?.price));
-        setHighestBid(parseFloat(auctionReducer?.auction?.price));
-    }, [userData.connected, roomId]);
+        if(auctionReducer?.bidMessages?.length > 0){
+            const maxBid = appVariables.findMax(auctionReducer?.bidMessages);
+            setBidAmount(parseFloat(maxBid));
+            setHighestBid(parseFloat(maxBid));
+        }else{
+            setBidAmount(parseFloat(auctionReducer?.auction?.price));
+            setHighestBid(parseFloat(auctionReducer?.auction?.price));
+        }
+    }, [auctionReducer?.bidMessages, userData.connected, roomId]);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            const countdown = appVariables.calculateCountdownAuction(
+        console.log('auctionReducer', auctionReducer);
+    }, [auctionReducer]);
+
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            const countdown = await appVariables.handleAuction(
+                auth,
                 auctionReducer?.auction?.start_time,
                 auctionReducer?.auction?.end_time,
                 dispatch,
-                updatedAuctionRoom
+                updatedAuctionRoom,
+                auctionReducer
             );
             setTimeLeft(countdown);
         }, 1000);
         return () => clearInterval(interval);
     }, [
         auctionReducer?.auction?.start_time,
-        auctionReducer?.auction?.end_time
+        auctionReducer?.auction?.end_time,
+        auctionReducer?.bidMessages
     ]);
-
-    useEffect(() => {
-        console.log(auctionReducer?.bidMessages);
-    }, [auctionReducer?.bidMessages]);
 
     const connect = () => {
         const socket = new SockJS("http://localhost:9090/ws");
@@ -91,7 +98,6 @@ const DauGiaComponent = () => {
 
         try {
             stompClient.activate();
-            console.log("WebSocket activation initiated.");
         } catch (error) {
             console.error("Error activating WebSocket:", error);
         }
@@ -107,6 +113,8 @@ const DauGiaComponent = () => {
             body: JSON.stringify({
                 sender: auth?.info?.email,
                 email: auth?.info?.email,
+                client_id: auth?.info?.id,
+                auction_id: roomId,
                 type: "JOIN", roomId
             }),
         });
@@ -115,10 +123,12 @@ const DauGiaComponent = () => {
     const disconnect = async () => {
         if (stompClient && stompClient.connected) {
             stompClient.publish({
-                destination: `/app/leaveRoom/${roomId}`,
+                destination: `/app/leaveAuctionRoom/${roomId}`,
                 body: JSON.stringify({
                     sender: auth?.info?.username,
                     email: auth?.info?.email,
+                    client_id: auth?.info?.id,
+                    auction_id: roomId,
                     type: 'LEAVE'
                 })
             });
@@ -126,7 +136,6 @@ const DauGiaComponent = () => {
             dispatch(updatedAuctionRoom({
                 connected: false,
             }));
-            setMessages([]);
         } else {
             dispatch(updatedAuctionRoom({
                 connected: false,
@@ -137,13 +146,10 @@ const DauGiaComponent = () => {
 
     const onMessageReceived = async (payload) => {
         const message = JSON.parse(payload.body);
-        console.log("msg: ", message);
         dispatch(addBidMessages(message));
         if(message?.count){
             setCountUser(message?.count);
         }
-        // console.log(auctionReducer?.bidMessages);
-        setMessages((prevMessages) => [...prevMessages, message]);
     };
 
     const handleBidSubmit = () => {
@@ -162,8 +168,10 @@ const DauGiaComponent = () => {
             if (stompClient && stompClient.connected) {
                 const chatMessage = {
                     sender: auth?.info?.email,
+                    bidAmount: `${newBid}`,
                     email: auth?.info?.email,
-                    content: `${newBid}`,
+                    client_id: auth?.info?.id,
+                    auction_id: roomId,
                     type: "AUCTION",
                     roomId,
                 };
@@ -227,7 +235,7 @@ const DauGiaComponent = () => {
                                     <div className={styles.message} key={index}>
                                         {msg?.sender ? (
                                             <div>
-                                                <div className={msg.content !== null && msg.sender !== undefined
+                                                <div className={msg?.bidAmount !== null && msg.sender !== undefined
                                                     ? (msg.sender === auth?.info?.email
                                                         ? `${styles.messageText} ${styles.messageSelf}`
                                                         : `${styles.messageText} ${styles.messageOther}`)
@@ -236,7 +244,7 @@ const DauGiaComponent = () => {
                                                         {msg.sender}:
                                                     </span>
                                                         <span>
-                                                        {' Vừa đấu giá: ' + appVariables.formatMoney(msg.content)}
+                                                        {' Vừa đấu giá ' +  appVariables.formatMoney(msg?.bidAmount)}
                                                     </span>
                                                 </div>
                                                 <div className={styles?.timeMessage}>

@@ -140,7 +140,7 @@ const AdminScreen = () => {
     }
 
     const formatDateVN = (date) => {
-        return moment(date).format("DD/MM/YYYY");
+        return moment(date, "DD-MM-YYYY").format("DD/MM/YYYY");
     };
 
     return (
@@ -350,8 +350,8 @@ const AdminScreen = () => {
                             <tbody>
                                 {admins.map((value, key) => (
                                     <tr key={key} className={listCheckBox.includes(value.id) ? "table-secondary" : ""}>
-                                        <td className="text-center align-middle" style={{ width: "60px" }}>
-                                            <Checkbox 
+                                        <td className="text-center align-middle" style={{width: "60px"}}>
+                                            <Checkbox
                                                 onChange={() => {
                                                     setListCheckBox((prev) => {
                                                         if (prev.includes(value.id)) {
@@ -485,11 +485,13 @@ const AdminScreen = () => {
                                         </td>
                                         <td className="text-center align-middle">
                                             {value.status === 1 ? (
-                                                <button className="btn btn-primary" onClick={() => handleChangeStatusAdmin(value, 0)}>
+                                                <button className="btn btn-primary"
+                                                        onClick={() => handleChangeStatusAdmin(value, 0)}>
                                                     Open
                                                 </button>
                                             ) : (
-                                                <button className="btn btn-danger" onClick={() => handleChangeStatusAdmin(value, 1)}>
+                                                <button className="btn btn-danger"
+                                                        onClick={() => handleChangeStatusAdmin(value, 1)}>
                                                     Close
                                                 </button>
                                             )}
@@ -504,7 +506,8 @@ const AdminScreen = () => {
                                                                     key: "1",
                                                                     label: (
                                                                         <>
-                                                                            <a onClick={() => setUpdateAdmin(value)} data-bs-toggle="modal"
+                                                                            <a onClick={() => setUpdateAdmin(value)}
+                                                                               data-bs-toggle="modal"
                                                                                data-bs-target="#EditModal">Cập Nhật
                                                                                 Thông Tin</a>
                                                                         </>
@@ -514,7 +517,8 @@ const AdminScreen = () => {
                                                                     key: "2",
                                                                     label: (
                                                                         <>
-                                                                            <a onClick={() => setUpdateAdmin(value)} data-bs-toggle="modal"
+                                                                            <a onClick={() => setUpdateAdmin(value)}
+                                                                               data-bs-toggle="modal"
                                                                                data-bs-target="#EditPassModal">Cập Nhật
                                                                                 Mật Khẩu</a>
                                                                         </>
@@ -544,46 +548,50 @@ const AdminScreen = () => {
                                                         <div className="modal-body">
                                                             <div className="row">
                                                                 <div className="col-lg-4 col-xl-4 col-md-6 col-sm-6">
-                                                                    <label className="mb-2 float-start">First Name</label>
+                                                                    <label className="mb-2 float-start">First
+                                                                        Name</label>
                                                                     <input className="form-control" type="text"
-                                                                        value={updateAdmin.first_name || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            first_name: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.first_name || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               first_name: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                                 <div className="col-lg-4 col-xl-4 col-md-6 col-sm-6">
-                                                                    <label className="mb-2 float-start">Last Name</label>
+                                                                    <label className="mb-2 float-start">Last
+                                                                        Name</label>
                                                                     <input className="form-control" type="text"
-                                                                        value={updateAdmin.last_name || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            last_name: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.last_name || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               last_name: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                                 <div className="col-lg-4 col-xl-4 col-md-6 col-sm-6">
-                                                                    <label className="mb-2 float-start">User Name</label>
+                                                                    <label className="mb-2 float-start">User
+                                                                        Name</label>
                                                                     <input className="form-control" type="text"
-                                                                        value={updateAdmin.user_name || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            user_name: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.user_name || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               user_name: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                             </div>
                                                             <div className="row mt-3">
                                                                 <div className="col">
                                                                     <label className="mb-2 float-start">Status</label>
-                                                                    <select className="form-control" 
-                                                                        value={updateAdmin.status}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            status: e.target.value
-                                                                        })}>
-                                                                        <option value="">Vui lòng chọn trạng thái...</option>
+                                                                    <select className="form-control"
+                                                                            value={updateAdmin.status}
+                                                                            onChange={(e) => setUpdateAdmin({
+                                                                                ...updateAdmin,
+                                                                                status: e.target.value
+                                                                            })}>
+                                                                        <option value="">Vui lòng chọn trạng thái...
+                                                                        </option>
                                                                         <option value="1">Open</option>
                                                                         <option value="0">Close</option>
                                                                     </select>
@@ -591,21 +599,22 @@ const AdminScreen = () => {
                                                                 <div className="col">
                                                                     <label className="mb-2 float-start">Email</label>
                                                                     <input className="form-control" type="email"
-                                                                        value={updateAdmin.email || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            email: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.email || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               email: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                                 <div className="col">
-                                                                    <label className="mb-2 float-start">Phone Number</label>
+                                                                    <label className="mb-2 float-start">Phone
+                                                                        Number</label>
                                                                     <input className="form-control" type="text"
-                                                                        value={updateAdmin.phone_number || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            phone_number: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.phone_number || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               phone_number: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -613,59 +622,72 @@ const AdminScreen = () => {
                                                                 <div className="col">
                                                                     <label className="mb-2 float-start">Birthday</label>
                                                                     <input className="form-control" type="date"
-                                                                        value={updateAdmin.birthday || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            birthday: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.birthday || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               birthday: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                                 <div className="col">
                                                                     <label className="mb-2 float-start">Address</label>
                                                                     <input className="form-control" type="text"
-                                                                        value={updateAdmin.address || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            address: e.target.value
-                                                                        })}
+                                                                           value={updateAdmin.address || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               address: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div className="modal-footer">
-                                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="button" className="btn btn-primary" onClick={handleUpdateAdmin}>Xác Nhận</button>
+                                                            <button type="button" className="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Đóng
+                                                            </button>
+                                                            <button type="button" className="btn btn-primary"
+                                                                    onClick={handleUpdateAdmin}>Xác Nhận
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                </div>  
+                                                </div>
                                             </div>
 
-                                            <div className="modal fade" id="EditPassModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div className="modal fade" id="EditPassModal" tabIndex="-1"
+                                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                 <div className="modal-dialog">
                                                     <div className="modal-content">
                                                         <div className="modal-header">
-                                                            <h5 className="modal-title" id="exampleModalLabel">Cập Nhật Mật Khẩu</h5>
-                                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            <h5 className="modal-title" id="exampleModalLabel">Cập Nhật
+                                                                Mật Khẩu</h5>
+                                                            <button type="button" className="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div className="modal-body">
-                                                        <div className="row">
+                                                            <div className="row">
                                                                 <div className="col mb-3">
-                                                                    <label className="form-label float-start">Password New</label>
-                                                                    <input type="text" className="form-control" value={updateAdmin.password || ''}
-                                                                        onChange={(e) => setUpdateAdmin({
-                                                                            ...updateAdmin,
-                                                                            password: e.target.value
-                                                                        })}
+                                                                    <label className="form-label float-start">Password
+                                                                        New</label>
+                                                                    <input type="text" className="form-control"
+                                                                           value={updateAdmin.password || ''}
+                                                                           onChange={(e) => setUpdateAdmin({
+                                                                               ...updateAdmin,
+                                                                               password: e.target.value
+                                                                           })}
                                                                     />
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div className="modal-footer">
-                                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                            <button type="button" className="btn btn-primary" onClick={() => handleChangePasswordAdmin()}>Xác Nhận</button>
+                                                            <button type="button" className="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Đóng
+                                                            </button>
+                                                            <button type="button" className="btn btn-primary"
+                                                                    onClick={() => handleChangePasswordAdmin()}>Xác Nhận
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                </div>  
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>

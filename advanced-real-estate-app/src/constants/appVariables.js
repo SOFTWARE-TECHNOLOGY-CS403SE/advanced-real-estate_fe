@@ -1,5 +1,8 @@
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import {useSelector} from "react-redux";
+import {auctionSelector} from "../redux/reducers/auctionReducer";
+import handleAPI from "../apis/handlAPI";
 
 export let appVariables = {
     stompClient: null,
@@ -57,20 +60,32 @@ export let appVariables = {
             return appVariables.AFTER;
         }
     },
-    calculateCountdownAuction : (start_time, end_time, dispatch, updatedAuctionRoom) => {
+    handleAuction : async (auth, start_time, end_time, dispatch, updatedAuctionRoom, auctionReducer) => {
         if(start_time && end_time){
-            console.log(start_time, end_time);
+            // console.log(start_time, end_time);
             const now = new Date();
             const startTimeParts = start_time.split(':');
             const endTimeParts = end_time.split(':');
             const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startTimeParts[0], startTimeParts[1]);
             const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endTimeParts[0], endTimeParts[1]);
-
             if (startTime < now) {
                 startTime.setDate(startTime.getDate() + 1);
             }
             const totalSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
             if (totalSeconds <= 0) {
+
+                const updatedBidMessages = auctionReducer?.bidMessages.map((message) => ({
+                    ...message,
+                    messageBidId: message.id,
+                    bidTime: message.currentDateTime,
+                }));
+                const res = await handleAPI(
+                '/api/admin/handle-bid-messages',
+                    updatedBidMessages,
+                    'POST',
+                    auth?.token
+                );
+                console.log("Auction response: ", res);
                 dispatch(updatedAuctionRoom({
                     connected: false,
                 }));
@@ -137,6 +152,19 @@ export let appVariables = {
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             // Khoảng cách tính bằng km
             return R * c;
+        }
+    },
+    findMax(array){
+        if(array){
+            let max = -Infinity;
+            let len = array.length;
+            while (len--) {
+                const value = parseFloat(array[len]?.bidAmount);
+                if (value > max) {
+                    max = value;
+                }
+            }
+            return isFinite(max) ? max : null;
         }
     },
     BEFORE: 'Before',

@@ -36,17 +36,21 @@ const RoomAuctionComponent = ({pageSize}) => {
     };
 
     const handleRoomChange = (roomId, item) => {
-        if(!auth?.token){
-            message.error("Bạn không thể vào phòng vui lòng đăng nhập để vào đấu giá!");
-            return;
-        }
         const { building, map, ...auction } = item;
         const { name, description } = item;
         const { image, auctions, ...buildingDetail } = building;
         const { buildings, ...mapDetail } = map;
         const status = appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time);
+        if(!auth?.token){
+            message.error("Bạn không thể vào phòng vui lòng đăng nhập để vào đấu giá!");
+            return;
+        }
         if(status === appVariables.AFTER){
             appVariables.toast_notify_error("Bạn không thể vào!. Phiên đấu giá này đã kết thúc!", 2000);
+            return;
+        }
+        if(!item?.active){
+            appVariables.toast_notify_error("Phiên đấu giá này đang bị khóa bạn không thể vào!", 2000);
             return;
         }
         const userJoinAuctionRoom = {
@@ -88,24 +92,44 @@ const RoomAuctionComponent = ({pageSize}) => {
                                 <div className={styles.timeContent}>
                                     <span className={styles.startEndTime}>
                                         <i className="fa fa-circle text-primary" id="exampleModalLabel"></i>
-                                        {' Trạng thái:'} {
+                                        {' Trạng thái hoạt động:'} {
                                         appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
                                         appVariables.BEFORE ? (
-                                            <span className={'text-primary'}>
+                                                <span className={'text-primary'}>
                                                 Chưa bắt đầu
                                             </span>) :
-                                        appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
-                                        appVariables.NOW ? (
-                                            <span className={'text-success'}>
+                                            appVariables.checkStatus(item?.start_date, item?.start_time, item?.end_time) ===
+                                            appVariables.NOW ? (
+                                                <span className={'text-success'}>
                                             Đang bắt đầu
                                             </span>) : (
                                                 <span className={'text-danger'}>
                                                 Đã kết thúc
                                             </span>
-                                        )
-                                    }
+                                            )
+                                        }
                                     </span>
                                 </div>
+                                {
+                                    !item?.active ? (
+                                        <div className={styles.timeContent}>
+                                            <i className="fa fa-lock text-primary" id="exampleModalLabel"></i>
+                                            {' Trạng thái phiên:'}
+                                            <span className={'text-danger'}>
+                                                {' Đang bị khóa'}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className={styles.timeContent}>
+                                            <i className="fa fa-unlock text-primary" id="exampleModalLabel"></i>
+                                            {' Trạng thái phiên:'}
+                                            <span className={'text-success'}>
+                                                {' Đang mở'}
+                                            </span>
+                                        </div>
+                                    )
+
+                                }
                                 <div className={styles.timeContent}>
                                     <span className={`${styles.startDate}`}>
                                         <i className="fa fa-money text-primary" id="exampleModalLabel"></i>
@@ -135,11 +159,13 @@ const RoomAuctionComponent = ({pageSize}) => {
                                     VÀO NGAY
                                 </Link>
                                 <Link type="button"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#auctionDetailModal"
-                                    className={styles.linkDetail}
-                                    onClick={()=>{setAuctionId(item?.id)}}
-                                    to={`#`}>
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#auctionDetailModal"
+                                      className={styles.linkDetail}
+                                      onClick={() => {
+                                          setAuctionId(item?.id)
+                                      }}
+                                      to={`#`}>
                                     XEM CHI TIẾT
                                 </Link>
                             </div>

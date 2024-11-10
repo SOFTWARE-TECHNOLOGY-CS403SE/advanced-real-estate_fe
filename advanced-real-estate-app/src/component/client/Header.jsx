@@ -156,7 +156,7 @@ const Header = () => {
                                             data-bs-toggle="dropdown"
                                         >
                                             <i className="fa fa-user-secret ms-3"/>
-                                            {" " + auth?.info?.username}
+                                            {" " + auth?.info?.user_name}
                                         </Link>
                                         <div className="dropdown-menu rounded-0 m-0">
                                             <Link to={'/user/info'} className="dropdown-item">

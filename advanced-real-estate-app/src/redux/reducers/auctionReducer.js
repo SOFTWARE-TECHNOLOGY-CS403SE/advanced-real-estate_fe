@@ -20,7 +20,9 @@ const auctionSlice = createSlice({
             state.auction = action.payload.auction;
         },
         addBidMessages: (state, action) => {
-            state.bidMessages.push(action.payload);
+            if(action.payload?.isSendBid){
+                state.bidMessages.push(action.payload);
+            }
         },
         removeBidMessages: (state, action) => {
             state.bidMessages = [];

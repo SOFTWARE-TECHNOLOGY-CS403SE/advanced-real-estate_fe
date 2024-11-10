@@ -40,7 +40,6 @@ const buildingSlice = createSlice({
             state.inputPrice = action.payload;
         },
         addBuildingDetails: (state, action) =>{
-            // state.listBuildingDetail = [];
             if (state.listBuildingDetail.length === 0) {
                 state.listBuildingDetail.push(action.payload);
                 message.success("Thêm nhà vào hợp đồng thành công!");

@@ -19,25 +19,23 @@ const ClientRouter = () => {
     const location = useLocation();
     const auth = useSelector(authSelector);
 
-    useEffect(() => {
-        const addCssLink = (href) => {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = href;
-            document.head.appendChild(link);
-        };
+    const addCssLink = (href) => {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        document.head.appendChild(link);
+    };
 
-        const addInitialCssLinks = () => {
-            addCssLink(`${process.env.PUBLIC_URL}/lib/animate/animate.min.css`);
-            addCssLink(`${process.env.PUBLIC_URL}/lib/owlcarousel/assets/owl.carousel.min.css`);
-            addCssLink(`${process.env.PUBLIC_URL}/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css`);
-            addCssLink(`https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css`);
-            addCssLink(`${process.env.PUBLIC_URL}/css/bootstrap.min.css`);
-            addCssLink(`${process.env.PUBLIC_URL}/css/style.css`);
-        };
+    const addInitialCssLinks = () => {
+        addCssLink(`${process.env.PUBLIC_URL}/lib/animate/animate.min.css`);
+        addCssLink(`${process.env.PUBLIC_URL}/lib/owlcarousel/assets/owl.carousel.min.css`);
+        addCssLink(`${process.env.PUBLIC_URL}/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css`);
+        addCssLink(`https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css`);
+        addCssLink(`${process.env.PUBLIC_URL}/css/bootstrap.min.css`);
+        addCssLink(`${process.env.PUBLIC_URL}/css/style.css`);
+    };
 
-        addInitialCssLinks();
-    }, []);
+    addInitialCssLinks();
 
     const routes = [
         { path: '/', element: <HomeScreen />, showFilter: false, showBanner: true },
