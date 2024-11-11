@@ -16,10 +16,10 @@ import ChatScreen from "../screens/admin/ChatScreen";
 import { jwtDecode } from 'jwt-decode';
 import RoomChatScreen from "../screens/admin/RoomChatScreen";
 import {appVariables} from "../constants/appVariables";
-import handleAPI from "../apis/handlAPI";
 import {fetchUser} from "../apis/api";
 import { message } from "antd";
 import AuctionScreen from "../screens/admin/AuctionScreen";
+import TypeBuildingScreen from "../screens/admin/TypeBuildingScreen";
 
 const { Content } = Layout;
 
@@ -119,6 +119,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin">
                                     <AdminScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="type-building"
+                            element={
+                                <PrivateRoute path="/admin/type-building">
+                                    <TypeBuildingScreen />
                                 </PrivateRoute>
                             }
                         />
