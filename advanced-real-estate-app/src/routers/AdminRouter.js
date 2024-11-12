@@ -20,6 +20,7 @@ import {fetchUser} from "../apis/api";
 import { message } from "antd";
 import AuctionScreen from "../screens/admin/AuctionScreen";
 import TypeBuildingScreen from "../screens/admin/TypeBuildingScreen";
+import DeviceScreen from "../screens/admin/DeviceScreen";
 
 const { Content } = Layout;
 
@@ -127,6 +128,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin/type-building">
                                     <TypeBuildingScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="device"
+                            element={
+                                <PrivateRoute path="/admin/device">
+                                    <DeviceScreen />
                                 </PrivateRoute>
                             }
                         />

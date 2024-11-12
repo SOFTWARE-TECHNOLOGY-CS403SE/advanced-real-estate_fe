@@ -41,7 +41,7 @@ const AdminScreen = () => {
     };
 
     const getData = async (page) => {
-        const url = `/api/users?page=${page}`;
+        const url = `/api/users?page=${page}&size=5`;
         try {
             const data = await handleAPI(url, {}, "get", auth?.token);
             setAdmins(data.result.data);
