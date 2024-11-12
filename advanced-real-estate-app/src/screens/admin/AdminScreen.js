@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Button, Checkbox, Dropdown, Space } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import handleAPI from "./../../apis/handlAPI";
 import { useSelector } from "react-redux";
 import { authSelector } from "../../redux/reducers/authReducer";
@@ -20,20 +20,6 @@ const AdminScreen = () => {
     const [updateAdmin, setUpdateAdmin] = useState({});
     const [updatePasswordAdmin, setUpdatePasswordAdmin] = useState({});
     const [listCheckBox, setListCheckBox] = useState([]);
-    const [file, setFile] = useState();
-
-    function handleChooseFileChange(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result;
-                console.log(base64String); // Chuỗi base64
-                setFile(base64String); // Đặt base64 vào state, hoặc thực hiện các thao tác khác
-            };
-            reader.readAsDataURL(file); // Chuyển file thành dạng base64
-        }
-    }
 
     const onChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
@@ -54,45 +40,96 @@ const AdminScreen = () => {
         imgWindow?.document.write(image.outerHTML);
     };
 
-    useEffect(() => {
-        getData();
-    }, []);
-
-    const getData = async () => {
-        const url = "/api/users";
+    const getData = async (page) => {
+        const url = `/api/users?page=${page}`;
         try {
             const data = await handleAPI(url, {}, "get", auth?.token);
-            setAdmins(data.result);
+            setAdmins(data.result.data);
+            setPagination(data.result.pagination);
             console.log(data);
         } catch (error) {
             console.log(error);
         }
     };
 
+    const [pagination, setPagination] = useState({
+        total: 0,
+        per_page: 2,
+        from: 1,
+        to: 0,
+        current_page: 1,
+        last_page: 1,
+    });
+    const [offset] = useState(4);
+
+    // Load dữ liệu ban đầu khi component được mount
+    useEffect(() => {
+        getData(pagination.current_page);
+    }, [pagination.current_page]);
+
+
+    // Hàm để thay đổi trang
+    const changePage = (page) => {
+        setPagination((prev) => ({
+            ...prev,
+            current_page: page
+        }));
+
+        getData(page);
+    };
+
+    const isActived = useMemo(() => {
+        return pagination.current_page;
+    }, [pagination]);
+
+    const pagesNumber = useMemo(() => {
+        if (!pagination.to) {
+            return [];
+        }
+        let from = pagination.current_page - offset;
+        if (from < 1) {
+            from = 1;
+        }
+        let to = from + offset * 2;
+        if (to >= pagination.last_page) {
+            to = pagination.last_page;
+        }
+        const pagesArray = [];
+        while (from <= to) {
+            pagesArray.push(from);
+            from++;
+        }
+        return pagesArray;
+    }, [pagination, offset]);
+
     const handleCreateAdmin = async () => {
-        // const formData = new FormData();
-        // formData.append("first_name", createAdmins.first_name);
-        // formData.append("last_name", createAdmins.last_name);
-        // formData.append("user_name", createAdmins.user_name);
-        // formData.append("password", createAdmins.password);
-        // formData.append("status", createAdmins.status);
-        // formData.append("email", createAdmins.email);
-        // formData.append("phone_number", createAdmins.phone_number);
-        // formData.append("birthday", createAdmins.birthday);
-        // formData.append("address", createAdmins.address);
+        const formData = new FormData();
+        formData.append("first_name", createAdmins.first_name);
+        formData.append("last_name", createAdmins.last_name);
+        formData.append("user_name", createAdmins.user_name);
+        formData.append("password", createAdmins.password);
+        formData.append("status", createAdmins.status);
+        formData.append("email", createAdmins.email);
+        formData.append("phone_number", createAdmins.phone_number);
+        formData.append("birthday", createAdmins.birthday);
+        formData.append("address", createAdmins.address);
 
+        if (createAdmins.avatar) {
+            formData.append("avatar", createAdmins.avatar);
+        }
+    
         const url = `/api/users`;
-
-        try{
-            const res = await handleAPI(url, createAdmins, "post", auth?.token);
+    
+        try {
+            const res = await handleAPI(url, formData, "post", auth?.token);
             Toast("success", res.message);
-            getData();
+            getData(pagination.current_page);
             window.$('#themMoiModal').modal('hide');
             setCreateAdmins({});
-        }catch(Error){
-            Toast("error", Error.message);
+        } catch (error) {
+            Toast("error", error.message);
         }
-    }
+    };
 
     const handleUpdateAdmin = async() => {
         const url = `/api/users/${updateAdmin.id}`;
@@ -100,7 +137,7 @@ const AdminScreen = () => {
         try {
             const res = await handleAPI(url, updateAdmin, "PUT", auth?.token);
             Toast("success", res.message);
-            getData();
+            getData(pagination.current_page);
             //dùng js để tắt modal
             window.$('#EditModal').modal('hide');
             
@@ -117,7 +154,7 @@ const AdminScreen = () => {
         try {
             const res = await handleAPI(url, updatedAdmin, "PUT", auth?.token);
             Toast("success", res.message);
-            getData(); // Tải lại dữ liệu sau khi cập nhật
+            getData(pagination.current_page); // Tải lại dữ liệu sau khi cập nhật
         } catch (error) {
             Toast("error", error.message);
         }
@@ -131,7 +168,7 @@ const AdminScreen = () => {
         try {
             const res = await handleAPI(url, newPassword, "PUT", auth?.token);
             Toast("success", res.message);
-            getData(); // Tải lại dữ liệu sau khi cập nhật
+            getData(pagination.current_page); // Tải lại dữ liệu sau khi cập nhật
             window.$("#EditPassModal").modal('hide');
             setUpdateAdmin({password:""});
         } catch (error) {
@@ -277,7 +314,7 @@ const AdminScreen = () => {
                                                     <input type="file"
                                                        className="form-control"
                                                        id="file" name={"file"}
-                                                       onChange={handleChooseFileChange}
+                                                       onChange={(e) => setCreateAdmins({ ...createAdmins, avatar: e.target.files[0] })}
                                                     />
                                                 </div>
                                                 <div className="col">
@@ -374,44 +411,11 @@ const AdminScreen = () => {
                                         <td className="text-center">
                                             {value.avatar ? (
                                                 <>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-primary"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#exampleModal"
-                                                    >
-                                                        Launch demo modal
-                                                    </button>
-
-                                                    <div
-                                                        className="modal fade"
-                                                        id="exampleModal"
-                                                        tabIndex="-1"
-                                                        aria-labelledby="exampleModalLabel"
-                                                        aria-hidden="true"
-                                                    >
-                                                        <div className="modal-dialog">
-                                                            <div className="modal-content">
-                                                                <div className="modal-header">
-                                                                    <h5
-                                                                        className="modal-title"
-                                                                        id="exampleModalLabel"
-                                                                    >
-                                                                        Modal title
-                                                                    </h5>
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn-close"
-                                                                        data-bs-dismiss="modal"
-                                                                        aria-label="Close"
-                                                                    ></button>
-                                                                </div>
-                                                                <div className="modal-body">
-                                                                    ...
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <img
+                                                        src={value.avatar}
+                                                        alt="User Avatar"
+                                                        style={{ width: '100px', height: '100px' }}
+                                                    />
                                                 </>
                                             ) : (
                                                 <>
@@ -695,6 +699,59 @@ const AdminScreen = () => {
                             </tbody>
                         </table>
                     </div>
+                    <nav className="m-b-30" aria-label="Page navigation example">
+                        <ul className="pagination justify-content-end pagination-primary">
+                            {pagination.current_page > 1 && (
+                                <li className="page-item">
+                                    <a
+                                        className="page-link"
+                                        href="#"
+                                        aria-label="Previous"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(pagination.current_page - 1);
+                                        }}
+                                    >
+                                        <span aria-hidden="true">Pre</span>
+                                    </a>
+                                </li>
+                            )}
+
+                            {pagesNumber.map((page) => (
+                                <li
+                                    key={page}
+                                    className={`page-item ${page === isActived ? 'active' : ''}`}
+                                >
+                                    <a
+                                        className="page-link"
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(page);
+                                        }}
+                                    >
+                                        {page}
+                                    </a>
+                                </li>
+                            ))}
+
+                            {pagination.current_page < pagination.last_page && (
+                                <li className="page-item">
+                                    <a
+                                        href="#"
+                                        className="page-link"
+                                        aria-label="Next"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(pagination.current_page + 1);
+                                        }}
+                                    >
+                                        <span aria-hidden="true">Next</span>
+                                    </a>
+                                </li>
+                            )}
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </>
