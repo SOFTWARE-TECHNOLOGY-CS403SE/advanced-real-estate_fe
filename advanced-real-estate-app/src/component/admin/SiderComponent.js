@@ -27,7 +27,7 @@ const SiderComponent = () => {
             key: "admin",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path}>
-                    Quản Lý quản trị viên
+                    Quản Lý Quản Trị Viên
                 </Link>
             ),
             icon: <Profile2User size={20} />,
@@ -37,7 +37,7 @@ const SiderComponent = () => {
             key: "type-building",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/type-building"}>
-                    Quản Lý kiểu tòa nhà
+                    Quản Lý Kiểu Tòa Nhà
                 </Link>
             ),
             icon: <Profile2User size={20} />,
@@ -47,7 +47,17 @@ const SiderComponent = () => {
             key: "device",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/device"}>
-                    Quản Lý thiết bị
+                    Quản Lý Thiết Bị
+                </Link>
+            ),
+            icon: <Profile2User size={20} />,
+            url: path, // Đường dẫn cần kiểm tra quyền truy cập
+        },
+        {
+            key: "category",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/category"}>
+                    Quản Lý Danh Mục Thiết Bị
                 </Link>
             ),
             icon: <Profile2User size={20} />,
@@ -57,7 +67,7 @@ const SiderComponent = () => {
             key: "chat",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/chat"}>
-                    Nhắn tin
+                    Nhắn Tin
                 </Link>
             ),
             icon: <GrChat size={20} />,
@@ -67,7 +77,7 @@ const SiderComponent = () => {
             key: "room-chat",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/room-chat"}>
-                    Quản lý phòng chat
+                    Quản Lý Phòng Chat
                 </Link>
             ),
             icon: <VscHome size={20} />,
@@ -77,7 +87,7 @@ const SiderComponent = () => {
             key: "user",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/user"}>
-                    Quản Lý người dùng
+                    Quản Lý Người Dùng
                 </Link>
             ),
             icon: <User size={20} />,
@@ -87,7 +97,7 @@ const SiderComponent = () => {
             key: "building",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/building"}>
-                    Quản Lý tòa nhà
+                    Quản Lý Tòa Nhà
                 </Link>
             ),
             icon: <BiHome size={20} />,
@@ -107,7 +117,7 @@ const SiderComponent = () => {
             key: "map",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/map"}>
-                    Quản Lý bản đồ
+                    Quản Lý Bản Đồ
                 </Link>
             ),
             icon: <Location size={20} />,
@@ -117,7 +127,7 @@ const SiderComponent = () => {
             key: "auction",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/auction"}>
-                    Quản Lý phiên đấu giá
+                    Quản Lý Phiên Đấu Giá
                 </Link>
             ),
             icon: <House size={20} />,
