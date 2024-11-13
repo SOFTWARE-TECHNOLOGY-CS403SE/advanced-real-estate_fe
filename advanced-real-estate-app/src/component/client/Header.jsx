@@ -45,7 +45,7 @@ const Header = () => {
         <div>
             <div className={`${styles.headerClient} container-fluid bg-dark px-0`}>
                 <div className="row gx-0">
-                    <div className="col-lg-2 bg-dark d-none d-lg-block">
+                    <div className="col-lg-3 bg-dark d-none d-lg-block">
                         <Link className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
                          to={"/"}>
                             <img className={styles.logoProject} src={appInfo?.logo_project} alt="no logo"/>
