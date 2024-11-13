@@ -41,16 +41,18 @@ const BuildingDetailScreen = () => {
                 (position) => {
                     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
                     handleAPINotToken(url, {}, 'GET')
-                    .then(res => {
+                    .then(async res => {
                         const buildingLat = parseFloat(building?.map?.latitude);
                         const buildingLon = parseFloat(building?.map?.longitude);
-                        const currentLat = position.coords.latitude;
-                        const currentLon = position.coords.longitude;
-                        const distance = appVariables.calculateDistance(currentLat, currentLon, buildingLat, buildingLon);
-                        setCurrentLocation({
-                            ...res,
-                            km: `${distance?.toFixed(2)} km`
-                        });
+                        const currentLat = parseFloat(position.coords.latitude);
+                        const currentLon = parseFloat(position.coords.longitude);
+                        if (!isNaN(buildingLat) && !isNaN(buildingLon) && currentLat && currentLon) {
+                            const distance = appVariables.calculateDistance(currentLat, currentLon, buildingLat, buildingLon);
+                            setCurrentLocation({
+                                ...res,
+                                km: `${distance?.toFixed(2)} km`
+                            });
+                        }
                     })
                     .catch(error=>{
                         console.log('Fetch error: ', error);
@@ -64,7 +66,10 @@ const BuildingDetailScreen = () => {
             console.log("Geolocation is not supported by this browser.");
             appVariables.toast_notify_warning("Vui lòng bật định vị của bạn lên để chúng tôi xác định khoách cách từ vị trí của bạn đến vị trí tòa nhà!");
         }
-    }, [building]);
+    }, [
+        building,
+        navigator.geolocation
+    ]);
 
     const toggleDescription = () => {
         setIsExpanded(!isExpanded);
@@ -215,7 +220,7 @@ const BuildingDetailScreen = () => {
                                 <div style={{paddingTop: '20px'}}>
                                     <button className={"btn btn-primary"}
                                             onClick={handleClickKyHopDong}>
-                                        Ký hợp đồng ngay
+                                        Xem chi tiết hợp đồng
                                     </button>
                                 </div>
                                 <div style={{paddingTop: '20px'}}>
