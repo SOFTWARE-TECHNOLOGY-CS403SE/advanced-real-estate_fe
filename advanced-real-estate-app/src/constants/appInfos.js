@@ -5,8 +5,11 @@ import vitri3 from "../assets/img/vitri3.png";
 import vitri4 from "../assets/img/vitri5-removebg-preview.png";
 import vitri5 from "../assets/img/2928883.png";
 import nha1 from "../assets/img/nha.png";
+import currentLocationIcon from "../assets/img/current_location-icon.png";
+import logo_project from "../assets/img/logo_project.jpg";
 
 export const appInfo = {
+	logo_project,
 	logo: '/static/media/Logo.dac44c6881253282d209.png',
 	title: 'ADVANCED REAL ESTATE',
 	description: '',
@@ -18,5 +21,7 @@ export const appInfo = {
 	vitri3,
 	vitri4,
 	vitri5,
-	nha1
+	nha1,
+	currentLocationIcon,
+
 };

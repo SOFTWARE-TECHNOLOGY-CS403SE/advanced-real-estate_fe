@@ -13,25 +13,38 @@ const RoutingControl = ({ currentLocation, buildingLocation }) => {
             !buildingLocation?.latitude || !buildingLocation?.longitude) {
             return;
         }
-        routeControlRef.current = L.Routing.control({
-            waypoints: [
-                L.latLng(currentLocation.lat, currentLocation.lon),
-                L.latLng(parseFloat(buildingLocation.latitude), parseFloat(buildingLocation.longitude))
-            ],
-            routeWhileDragging: true,
-            lineOptions: {
-                styles: [{ color: 'blue', weight: 5 }]
-            },
-            createMarker: () => null,
-            addWaypoints: false,
-            show: false
-        }).addTo(map);
+        try {
+            routeControlRef.current = L.Routing.control({
+                waypoints: [
+                    L.latLng(currentLocation.lat, currentLocation.lon),
+                    L.latLng(parseFloat(buildingLocation.latitude), parseFloat(buildingLocation.longitude))
+                ],
+                routeWhileDragging: true,
+                lineOptions: {
+                    styles: [{ color: 'blue', weight: 5 }]
+                },
+                createMarker: () => null,
+                addWaypoints: false,
+                show: false
+            }).addTo(map);
+        } catch (error) {
+            console.error("Error initializing Routing Control:", error);
+        }
 
         return () => {
-            if (routeControlRef.current && map.hasLayer(routeControlRef.current)) {
-                routeControlRef.current.getPlan().setWaypoints([]);
-                map.removeControl(routeControlRef.current);
-                routeControlRef.current = null;
+            try {
+                if (routeControlRef.current) {
+                    const plan = routeControlRef.current.getPlan();
+                    if (plan) {
+                        plan.setWaypoints([]);
+                    }
+                    if (map && map.hasLayer(routeControlRef.current)) {
+                        map.removeControl(routeControlRef.current);
+                    }
+                    routeControlRef.current = null;
+                }
+            } catch (error) {
+                console.error("Error removing Routing Control");
             }
         };
     }, [map, currentLocation, buildingLocation]);
@@ -41,13 +54,13 @@ const RoutingControl = ({ currentLocation, buildingLocation }) => {
 
 const DistanceMapComponent = ({ buildingLocation, currentLocation }) => {
     const currentLocationIcon = L.icon({
-        iconUrl: appInfo.vitri4,
-        iconSize: [30, 41],
+        iconUrl: appInfo.currentLocationIcon,
+        iconSize: [35, 35],
         iconAnchor: [12, 41]
     });
     const buildingLocationIcon = L.icon({
-        iconUrl: appInfo.vitri5,
-        iconSize: [40, 41],
+        iconUrl: appInfo.vitri4,
+        iconSize: [27, 37],
         iconAnchor: [12, 41]
     });
 
