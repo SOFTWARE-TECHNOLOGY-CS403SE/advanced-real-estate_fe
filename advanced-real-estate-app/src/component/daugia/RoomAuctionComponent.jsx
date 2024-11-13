@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, {useEffect, useState} from 'react';
 import styles from "../../assets/css/room-auction.module.css";
 import {useDispatch, useSelector} from "react-redux";

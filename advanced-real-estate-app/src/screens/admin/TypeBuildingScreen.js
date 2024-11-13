@@ -14,8 +14,8 @@ const TypeBuildingScreen = () => {
     const [listCheckBox, setListCheckBox] = useState([]);
     const [updateTypeBuilding, setUpdateTypeBuilding] = useState({});
     const auth = useSelector(authSelector);
-const getData = async (page) => {
-        const url = `/api/type-building?page=${page}`;
+    const getData = async (page) => {
+        const url = `/api/type-building?page=${page}&size=5`;
         try {
             const data = await handleAPI(url, {}, "get", auth?.token);
             setTypeBuilding(data.data.data);
@@ -195,7 +195,7 @@ const getData = async (page) => {
                                Thêm Mới
                             </button>
                             <div className="modal fade" id="themMoiModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div className="modal-dialog">
+                                <div className="modal-dialog modal-lg">
                                     <div className="modal-content">
                                         <div className="modal-header">
                                             <h5 className="modal-title" id="exampleModalLabel">Thêm Mới Kiểu Tòa Nhà</h5>
@@ -206,17 +206,29 @@ const getData = async (page) => {
                                                 <div className='col'>
                                                     <lable className='form-lable'>Tên Kiểu Tòa Nhà</lable>
                                                     <input className='form-control mt-2' type='text'
-                                                        value={createTypeBuilding.name}
+                                                        value={createTypeBuilding.type_name}
                                                         onChange={
                                                             (e) => setCreateTypeBuilding({
                                                                 ...createTypeBuilding,
-                                                                name: e.target.value,
+                                                                type_name: e.target.value,
                                                             })
                                                         }
                                                     />
                                                 </div>
                                                 <div className='col'>
-                                                    <lable className='form-lable'>Tên Kiểu Tòa Nhà</lable>
+                                                    <lable className='form-lable'>Giá Tiền</lable>
+                                                    <input className='form-control mt-2' type='number'
+                                                        value={createTypeBuilding.price}
+                                                        onChange={
+                                                            (e) => setCreateTypeBuilding({
+                                                                ...createTypeBuilding,
+                                                                price: e.target.value,
+                                                            })
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className='col'>
+                                                    <lable className='form-lable'>Trạng Thái</lable>
                                                     <select className='form-control mt-2'
                                                         value={createTypeBuilding.status}
                                                         onChange={
@@ -259,7 +271,7 @@ const getData = async (page) => {
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa user</h1>
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa Loại Tòa Nhà</h1>
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body ">
@@ -278,6 +290,7 @@ const getData = async (page) => {
                                         }
                                     </th>
                                     <th className="align-middle text-center">Tên Kiểu Tòa Nhà</th>
+                                    <th className="align-middle text-center">Giá Tiền</th>
                                     <th className="align-middle text-center">Trạng Thái</th>
                                     <th className="align-middle text-center">Action</th>
                                 </tr>
@@ -302,7 +315,8 @@ const getData = async (page) => {
                                             }}
                                         />
                                         </td>
-                                        <td className="align-middle">{value.name || ""}</td>
+                                        <td className="align-middle">{value.type_name || ""}</td>
+                                        <td className="text-end align-middle">{value.price || ""}</td>
                                         <td className="text-center align-middle">
                                             {value.status === 1 ? (
                                                 <button className="btn btn-primary" onClick={() => handleChangeStatusAdmin(value, 0)}>
@@ -354,19 +368,31 @@ const getData = async (page) => {
                                                         <div className="modal-body">
                                                             <div className="row">
                                                                 <div className='col'>
-                                                                    <lable className='form-lable'>Tên Kiểu Tòa Nhà</lable>
+                                                                    <lable className='form-lable float-start mb-2'>Tên Kiểu Tòa Nhà</lable>
                                                                     <input className='form-control mt-2' type='text'
-                                                                        value={updateTypeBuilding.name}
+                                                                        value={updateTypeBuilding.type_name}
                                                                         onChange={
                                                                             (e) => setUpdateTypeBuilding({
                                                                                 ...updateTypeBuilding,
-                                                                                name: e.target.value,
+                                                                                type_name: e.target.value,
                                                                             })
                                                                         }
                                                                     />
                                                                 </div>
                                                                 <div className='col'>
-                                                                    <lable className='form-lable'>Tên Kiểu Tòa Nhà</lable>
+                                                                    <lable className='form-lable float-start mb-2'>Giá Tiền</lable>
+                                                                    <input className='form-control mt-2' type='number'
+                                                                        value={updateTypeBuilding.price}
+                                                                        onChange={
+                                                                            (e) => setUpdateTypeBuilding({
+                                                                                ...updateTypeBuilding,
+                                                                                price: e.target.value,
+                                                                            })
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                                <div className='col'>
+                                                                    <lable className='form-lable float-start mb-2'>Trạng Thái</lable>
                                                                     <select className='form-control mt-2'
                                                                         value={updateTypeBuilding.status}
                                                                         onChange={

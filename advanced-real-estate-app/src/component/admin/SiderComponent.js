@@ -44,6 +44,16 @@ const SiderComponent = () => {
             url: path, // Đường dẫn cần kiểm tra quyền truy cập
         },
         {
+            key: "device",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/device"}>
+                    Quản Lý thiết bị
+                </Link>
+            ),
+            icon: <Profile2User size={20} />,
+            url: path, // Đường dẫn cần kiểm tra quyền truy cập
+        },
+        {
             key: "chat",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/chat"}>
