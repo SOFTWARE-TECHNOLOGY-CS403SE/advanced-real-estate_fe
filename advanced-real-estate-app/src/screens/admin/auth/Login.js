@@ -38,7 +38,8 @@ const Login = () => {
                         '/admin/map',
                         '/admin/auction',
                         '/admin/type-building',
-                        '/admin/device'
+                        '/admin/device',
+                        '/admin/category',
                     ]
                     // Lưu role vào auth (admin hoặc client)
                 };
