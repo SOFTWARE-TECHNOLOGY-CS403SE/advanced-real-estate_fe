@@ -2,8 +2,9 @@
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {useSelector} from "react-redux";
-import {auctionSelector} from "../redux/reducers/auctionReducer";
+import {auctionSelector, removeBidMessages} from "../redux/reducers/auctionReducer";
 import handleAPI from "../apis/handlAPI";
+import showToast from "../config/ToastConfig";
 
 export let appVariables = {
     stompClient: null,
@@ -61,7 +62,7 @@ export let appVariables = {
             return appVariables.AFTER;
         }
     },
-    handleAuction : async (auth, start_time, end_time, dispatch, updatedAuctionRoom, auctionReducer) => {
+    handleAuction : async (auth, start_time, end_time, dispatch, updatedAuctionRoom, removeBidMessages, auctionReducer) => {
         if(start_time && end_time){
             // console.log(start_time, end_time);
             const now = new Date();
@@ -80,20 +81,22 @@ export let appVariables = {
                     messageBidId: message.id,
                     bidTime: message.currentDateTime,
                 }));
-                const res = await handleAPI(
-                '/api/admin/handle-bid-messages',
-                    updatedBidMessages,
-                    'POST',
-                    auth?.token
-                );
-                console.log("Auction response: ", res);
                 dispatch(updatedAuctionRoom({
                     connected: false,
                 }));
-                appVariables.toast_notify_warning(
-                    "Thời hạn đấu giá đã hết cảm ơn bạn đã tham gia phiên đấu giá!",
-                    5000
-                );
+                try {
+                    const res = await handleAPI(
+                        '/api/admin/handle-bid-messages',
+                        updatedBidMessages,
+                        'POST',
+                        auth?.token
+                    );
+                    console.log("Auction response: ", res);
+                    showToast('warning', "Thời hạn đấu giá đã hết cảm ơn bạn đã tham gia phiên đấu giá!");
+                }catch (error) {
+                    showToast("error", error.message)
+                }
+                dispatch(removeBidMessages());
                 return '00:00:00';
             }
             const hours = Math.floor(totalSeconds / 3600);
@@ -119,18 +122,6 @@ export let appVariables = {
     },
     toast_notify_warning : (text, time)=>{
         toast.warning(text, {
-            position: "top-center",
-            autoClose: time,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-        })
-    },
-    toast_notify_success : (text, time)=>{
-        toast.success(text, {
             position: "top-center",
             autoClose: time,
             hideProgressBar: false,

@@ -13,15 +13,13 @@ const InfoModal = ({user, setUser, getUserInfo}) => {
 
     useEffect(() => {
         setInfo({
-            id: user?.id,
-            firstName: user?.firstName,
-            lastName: user?.lastName,
-            gender: user?.gender,
-            phoneNumber: user?.phoneNumber,
-            address: user?.address,
-            birthday: user?.birthday,
+            ...user
         });
     }, [user]);
+
+    useEffect(() => {
+        console.log(info);
+    }, [info]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -59,26 +57,26 @@ const InfoModal = ({user, setUser, getUserInfo}) => {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="firstName"
-                                        name="firstName"
+                                        id="first_name"
+                                        name="first_name"
                                         placeholder="Your firstName"
-                                        value={info?.firstName}
+                                        value={info?.first_name}
                                         onChange={handleChange}
                                     />
-                                    <label htmlFor="firstName">Họ</label>
+                                    <label htmlFor="first_name">Họ</label>
                                 </div>
                                 <br />
                                 <div className="form-floating">
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="lastName"
-                                        name="lastName"
+                                        id="last_name"
+                                        name="last_name"
                                         placeholder="Your lastName"
-                                        value={info?.lastName}
+                                        value={info?.last_name}
                                         onChange={handleChange}
                                     />
-                                    <label htmlFor="lastName">Tên</label>
+                                    <label htmlFor="last_name">Tên</label>
                                 </div>
                                 <br />
                                 <div className="form-floating">
@@ -96,10 +94,9 @@ const InfoModal = ({user, setUser, getUserInfo}) => {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        id="phoneNumber"
-                                        name="phoneNumber"
+                                        name="phone_number"
                                         placeholder="Your phoneNumber"
-                                        value={info?.phoneNumber}
+                                        value={info?.phone_number}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="phoneNumber">Số điện thoại</label>
