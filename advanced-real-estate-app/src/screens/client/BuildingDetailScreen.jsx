@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import styles from "../../assets/css/building.module.css";
@@ -32,7 +34,7 @@ const BuildingDetailScreen = () => {
     }, [id]);
 
     useEffect(() => {
-        // console.log(building);
+        console.log(building);
     }, [building]);
 
     useEffect(() => {
@@ -77,8 +79,8 @@ const BuildingDetailScreen = () => {
     const fetchData = async ()=> {
         try {
             const res = await handleAPI(`/api/user/buildings/${id}`, {}, "get");
-            setBuilding(res?.data);
-            console.log(res?.data);
+            setBuilding(res?.data[0]);
+            console.log(res?.data[0]);
         } catch (error) {
             console.log("error: ",error);
         }
@@ -177,7 +179,7 @@ const BuildingDetailScreen = () => {
                                 <div className="row mb-2">
                                     <div className="col-md-12 mb-3">
                                         <i className="fa fa-circle text-primary me-2"/>
-                                        <strong>Loại nhà:</strong> {building?.type}
+                                        <strong>Loại nhà:</strong> {building?.typeBuilding?.type_name}
                                     </div>
                                     <div className="col-md-12 mb-3">
                                         <i className="fa fa-arrows text-primary me-2"/>
@@ -185,11 +187,11 @@ const BuildingDetailScreen = () => {
                                     </div>
                                     <div className="col-md-12 mb-3">
                                         <i className="fa fa-money text-primary me-2"/>
-                                        <strong>Gía:</strong> {appVariables.formatMoney(building?.price)}
+                                        <strong>Gía:</strong> {appVariables.formatMoney(building?.typeBuilding?.price)}
                                     </div>
                                     <div className="col-md-12 mb-3">
                                         <i className="fa fa-home text-primary me-2"/>
-                                        <strong>Kiến trúc:</strong> {building?.structure}
+                                        <strong>Kiến trúc:</strong> {building?.typeBuilding?.type_name}
                                     </div>
                                     <div className="col-md-12 mb-3">
                                         <i className="fa fa-home text-primary me-2"/>

@@ -1,445 +1,926 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-unused-vars */
-import React, {useEffect, useState} from 'react';
-import {authSelector} from "../../redux/reducers/authReducer";
-import {useSelector} from "react-redux";
-import {handleApiBuilding} from "../../apis/api";
-import { Button, Card, Form, Input, message, Typography } from "antd";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { authSelector } from "../../redux/reducers/authReducer";
+import { useSelector } from "react-redux";
+import { Button, Checkbox, Dropdown, Space } from "antd";
 import handleAPI from "../../apis/handlAPI";
+import Toast from "../../config/ToastConfig";
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import 'leaflet-routing-machine';
+import { appInfo } from './../../constants/appInfos';
+import { Bag, Setting2 } from 'iconsax-react';
 
 const BuildingScreen = () => {
-
-    const [buildings, setBuildings] = useState([]);
-    const [maps, setMaps] = useState([]);
     const auth = useSelector(authSelector);
-    const [editingBuilding, setEditingBuilding] = useState(null);
-    const [file, setFile] = useState();
+    const [listCheckBox, setListCheckBox] = useState([]);
+    const [buildings, setBuildings] = useState([]);
+    const [createBuilding, setCreateBuilding] = useState({ image: null });
+    const [updateBuilding, setUpdateBuilding] = useState({});
+    const [moTa, setMoTa] = useState("");
+    const [arrayImage,setArrayImage] = useState([]);
+    const [typeBuilding, setTypeBuilding] = useState([]);
+    const [maps, setMaps] = useState([]);
+    const [userLocation, setUserLocation] = useState(null); // Tọa độ người dùng
+    const [destinationLocation, setDestinationLocation] = useState(null); // Tọa độ địa chỉ được chọn
+    const [images, setImages] = useState([]); 
+    const [files, setFiles] = useState([]); 
+    const inputFileRef = useRef(null);
+    const inputFileCreateRef = useRef(null);
+    // Định nghĩa biểu tượng `currentLocationIcon` với kích thước và ảnh tùy chỉnh
+    const currentLocationIcon = L.icon({
+        iconUrl: appInfo.currentLocationIcon,
+        iconSize: [35, 35],
+        iconAnchor: [17, 35] 
+    });
 
-    function handleChooseFileChange(event) {
-        setFile(event.target.files[0])
-    }
+    const [pagination, setPagination] = useState({
+        total: 0,
+        per_page: 2,
+        from: 1,
+        to: 0,
+        current_page: 1,
+        last_page: 1,
+    });
 
-    const refresh = async () =>{
-        return await handleApiBuilding("/api/admin/buildings", {}, "get", auth?.token)
-        .then(res => {
-            setBuildings(res?.data);
-        })
-        .catch(error=> {
-            message.error("Fetch error: ", error);
-            console.log("Fetch error: ", error);
-        });
-    }
+    const [offset] = useState(4);
 
-    const handleEditClick = (building) => {
-        setEditingBuilding({
-            id: building?.id,
-            name: building?.name,
-            structure: building?.structure,
-            area: building?.area,
-            type: building?.type,
-            status: building?.status,
-            description: building?.description,
-            number_of_basement: building?.number_of_basement,
-            price: building?.price,
-            map_id: building?.map?.id
-        });
-    };
-
-    const handleCloneClick = (building) => {
-        setEditingBuilding({
-            id: building?.id,
-            name: building?.name,
-            structure: building?.structure,
-            area: building?.area,
-            type: building?.type,
-            status: building?.status,
-            description: building?.description,
-            number_of_basement: building?.number_of_basement,
-            price: building?.price,
-            map_id: building?.map?.id
-        });
-    };
-
-    const handleUpLoadClick = (building) => {
-        setEditingBuilding({
-            id: building?.id,
-        });
-    };
-
-    const handleUpload = async () => {
-        setEditingBuilding(null);
-        console.log(editingBuilding);
-
-        if (!file) {
-            message.error("Choose file please!");
-            setEditingBuilding(null);
-            return;
-        }
-        const formData = new FormData();
-        formData.append("image", file);
-
+    const getDataTypeBuilding = async () => {
+        const url = `/api/type-building`;
         try {
-            await handleApiBuilding(`/api/admin/buildings/${editingBuilding?.id}/upload-image`,
-                formData, "post", auth?.token
-            );
-            message.success("Upload image successfully!");
-            await refresh();
+            const data = await handleAPI(url, {}, "get", auth?.token);
+            setTypeBuilding(data.data.data);
         } catch (error) {
-            message.error("Upload error: " + error);
-            console.log("Upload error: ", error);
+            console.log(error);
+        }
+    }
+
+    const getDataMap = async () => {
+        const url = `/api/admin/maps`;
+        try {
+            const data = await handleAPI(url, {}, "get", auth?.token);
+            setMaps(data.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    // Lấy vị trí hiện tại của người dùng khi component được mount
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLocation([position.coords.latitude, position.coords.longitude]);
+                },
+                (error) => {
+                    console.error("Lỗi khi lấy vị trí người dùng: ", error);
+                }
+            );
+        } else {
+            console.error("Trình duyệt không hỗ trợ Geolocation.");
+        }
+    }, []);
+
+    const getData = async (page) => {
+        const url = `/api/admin/buildings?page=${page}&size=5`;
+        try {
+            const data = await handleAPI(url, {}, "get", auth?.token);
+            setBuildings(data.data.data);
+            setPagination(data.data.pagination);
+            console.log(data);
+        } catch (error) {
+            console.log(error);
         }
     };
 
+    // Load dữ liệu ban đầu khi component được mount
+    useEffect(() => {
+        getData(pagination.current_page);
+        getDataTypeBuilding();
+        getDataMap();
+    }, [pagination.current_page]);
 
-    const handleClone = async () => {
-        setEditingBuilding(null);
-        console.log(editingBuilding);
-        const payload = {
-            name: editingBuilding?.name,
-            structure: editingBuilding?.structure,
-            area: editingBuilding?.area,
-            type: editingBuilding?.type,
-            status: editingBuilding?.status,
-            description: editingBuilding?.description,
-            number_of_basement: editingBuilding?.number_of_basement,
-            price: editingBuilding?.price,
-            map_id: editingBuilding?.map_id
-        }
-        await handleApiBuilding(`/api/admin/buildings`, payload, "post", auth?.token)
-            .then(res => message.success("Clone successfully!"))
-            .catch(error=> {
-                message.error("Clone error: ", error);
-                console.log("Clone error: ", error);
-            });
-        await refresh();
+    // Hàm để thay đổi trang
+    const changePage = (page) => {
+        setPagination((prev) => ({
+            ...prev,
+            current_page: page
+        }));
+
+        getData(page);
     };
 
-    const handleSaveClick = async (id) => {
-        setEditingBuilding(null);
-        console.log(id);
-        console.log(editingBuilding);
-        const payload = {
-            name: editingBuilding?.name,
-            structure: editingBuilding?.structure,
-            area: editingBuilding?.area,
-            type: editingBuilding?.type,
-            status: editingBuilding?.status,
-            description: editingBuilding?.description,
-            number_of_basement: editingBuilding?.number_of_basement,
-            price: editingBuilding?.price,
-            map_id: editingBuilding?.map_id,
+    const isActived = useMemo(() => {
+        return pagination.current_page;
+    }, [pagination]);
+
+    const pagesNumber = useMemo(() => {
+        if (!pagination.to) {
+            return [];
         }
-        await handleApiBuilding(`/api/admin/buildings/${id}`, payload, "patch", auth?.token)
-            .then(res => message.success("Update successfully!"))
-            .catch(error=> {
-                message.error("Update error: ", error);
-                console.log("Update error: ", error);
-            });
-       await refresh();
+        let from = pagination.current_page - offset;
+        if (from < 1) {
+            from = 1;
+        }
+        let to = from + offset * 2;
+        if (to >= pagination.last_page) {
+            to = pagination.last_page;
+        }
+        const pagesArray = [];
+        while (from <= to) {
+            pagesArray.push(from);
+            from++;
+        }
+        return pagesArray;
+    }, [pagination, offset]);
+
+    // Component để kích hoạt invalidateSize và vẽ tuyến đường khi modal mở
+    const MapWrapper = () => {
+        const map = useMap();
+        useEffect(() => {
+            const handleModalShown = () => {
+                map.invalidateSize(); // Invalidate kích thước khi modal mở
+
+                // Vẽ tuyến đường nếu có vị trí người dùng và điểm đích
+                if (userLocation && destinationLocation) {
+                    L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLocation[0], userLocation[1]),
+                            L.latLng(destinationLocation[0], destinationLocation[1])
+                        ],
+                        routeWhileDragging: true,
+                    }).addTo(map);
+                }
+            };
+
+            // Lắng nghe sự kiện mở modal
+            const modalElement = document.getElementById('themMoiModal');
+            const modalElement1 = document.getElementById('EditModal');
+            modalElement?.addEventListener('shown.bs.modal', handleModalShown);
+            modalElement1?.addEventListener('shown.bs.modal', handleModalShown);
+
+            // Cleanup để tránh lắng nghe sự kiện dư thừa
+            return () => {
+                modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
+                modalElement1?.removeEventListener('shown.bs.modal', handleModalShown);
+            };
+        }, [map, userLocation, destinationLocation]);
+
+        return null;
+    }
+
+    const handleImageChange = (e) => { 
+        const files = Array.from(e.target.files); 
+        const imageUrls = files.map(file => URL.createObjectURL(file));
+        setFiles(files)
+        setImages(imageUrls);
+        setArrayImage(imageUrls);
     };
+
+    const handlCreateBuilding = async () => {
+        const formData = new FormData();
+        formData.append("name", createBuilding.name);
+        formData.append("id_type_building", createBuilding.id_type_building);
+        formData.append("id_map", createBuilding.id_map);
+        formData.append("description", createBuilding.description);
+        formData.append("status", createBuilding.status);
+        formData.append("number_of_basement", createBuilding.number_of_basement);
+        formData.append("acreage", createBuilding.acreage);
+        files.forEach((file) => {
+            formData.append('image', file);
+        });
     
-    useEffect(() => {
-        handleApiBuilding("/api/admin/buildings", {}, "get", auth?.token)
-            .then(res => {
-                setBuildings(res?.data);
-                console.log(res?.data);
-            })
-            .catch(error=> {
-                message.error("Fetch error: ", error);
-                console.log("Fetch error: ", error);
+        const url = `/api/admin/buildings`;
+        
+        try {
+            const res = await handleAPI(url, formData, "post", auth?.token);
+            Toast("success", res.message);
+            getData(pagination.current_page);
+            window.$('#themMoiModal').modal('hide');
+            setFiles(null);
+            setImages([]);
+            setCreateBuilding({
+                id_map : "",
+                id_type_building : "",
+                description : "",
+                name : "",
+                status : 0,
+                number_of_basement : 0,
+                acreage : ""
             });
-    }, [auth?.token]);
+            
+            if (inputFileCreateRef.current) {
+                inputFileCreateRef.current.value = "";
+            }
+        } catch (error) {
+            Toast("error", error.message);
+        }
+    }
 
-    useEffect(() => {
-        handleAPI("/api/admin/maps", {}, "get", auth?.token)
-            .then(res => setMaps(res?.data))
-            .catch(error=> {
-                message.error("Fetch error: ", error);
-                console.log("Fetch error: ", error);
-            });
-    }, [auth?.token]);
+    const handleChangeStatus = async (value, newStatus) => {
+        const url = `/api/admin/buildings/${value.id}`;
+        const updatedNew = { ...value, status: newStatus };
+        try {
+            const res = await handleAPI(url, updatedNew, "put", auth?.token)
+            console.log(res.status);
+            
+            if(res.status === 200) {
+                Toast("success", res.message);
+                getData(pagination.current_page);
+                setUpdateBuilding({
+                    id_map : "",
+                    id_type_building : "",
+                    description : "",
+                    name : "",
+                    status : 0,
+                    number_of_basement : 0,
+                    acreage : ""
+                });
+                
+            }
+        } catch (error) {
+            Toast("error", error.message);
+        }
+    }
 
-    const deleteById = async (id) =>{
-        await handleApiBuilding(`/api/admin/buildings/${id}`, {}, "delete", auth?.token)
-            .then(res => message.success("Delete successfully!"))
-            .catch(error=> {
-                message.error("Delete error: ", error);
-                console.log("Delete error: ", error);
-            });
-        await refresh();
+    const handlUpdateBuilding = async () => {
+        const url = `/api/admin/buildings/${updateBuilding.id}`;
+        // copy value và loại bỏ area trong updateBuilding thay vào đó là acreage
+        const { area, ...rest } = updateBuilding;
+        const updatedNew = { ...rest, acreage: area };
+        console.log(updatedNew);
+        
+        try {
+            const res = await handleAPI(url, updatedNew, "put", auth?.token)
+            console.log(res.status);
+            
+            if(res.status === 200) {
+                Toast("success", res.message);
+                getData(pagination.current_page);
+                window.$('#EditModal').modal('hide');
+                setUpdateBuilding({
+                    id_map : "",
+                    id_type_building : "",
+                    description : "",
+                    name : "",
+                    status : 0,
+                    number_of_basement : 0,
+                    acreage : ""
+                });
+            }
+        } catch (error) {
+            Toast("error", error.message);
+        }
+    }
+
+    const handlUpdateImage = async () => {
+        console.log(updateBuilding.name);
+        const url = `/api/admin/buildings/image/${updateBuilding.id}`;
+        const formData = new FormData();
+        // formData.append("image", createBuilding.image);
+        files.forEach((file) => {
+            formData.append('image', file);
+        });
+    
+        
+        try {
+            const res = await handleAPI(url, formData, "put", auth?.token)
+            
+            if(res.status === 200) {
+                Toast("success", res.message);
+                getData(pagination.current_page);
+                window.$('#XemAnhModal').modal('hide');
+                setFiles([]);
+                setImages([]);
+                setUpdateBuilding({
+                    id_map : "",
+                    id_type_building : "",
+                    description : "",
+                    name : "",
+                    status : 0,
+                    number_of_basement : 0,
+                    acreage : ""
+                });
+                
+                if (inputFileRef.current) {
+                    inputFileRef.current.value = "";
+                }
+            }
+        } catch (error) {
+            Toast("error", error.message);
+        }
+    }
+
+    const handlDeleteBuilding = async () => {
+        console.log(listCheckBox);
+        
+        if(listCheckBox.length === 1) {
+            const url = `/api/admin/buildings/${listCheckBox}`;
+            try {
+                const res = await handleAPI(url, {}, "delete", auth?.token)
+                console.log(res.status);
+                
+                if(res.status === 200) {
+                    Toast("success", res.message);
+                    getData(pagination.current_page);
+                    setListCheckBox((prev) => prev.filter((id) => id !== listCheckBox[0]));
+                    window.$('#deleteModal').modal('hide');
+                }
+            } catch (error) {
+                Toast("error", error.message);
+            }
+        } else {
+            const url = `/api/admin/buildings/delete-all`;
+            const object = {
+                ids : listCheckBox
+            }
+            try {
+                const res = await handleAPI(url, object, "delete", auth?.token)
+                console.log(res.status);
+                
+                if(res.status === 200) {
+                    Toast("success", res.message);
+                    getData(pagination.current_page);
+                    setListCheckBox([]);
+                    window.$('#deleteModal').modal('hide');
+                }
+            } catch (error) {
+                Toast("error", error.message);
+            }
+        }
     }
 
     return (
-        <div>
-            <div className="card">
-                <div className="card-header">Danh Sách tòa nhà</div>
-                <div className="card-body">
+        <>
+            <div className='card'>
+                <div className='card-header'>
+                    <div className="d-flex align-items-center justify-content-between">
+                        <div className="p-2 bd-highlight">
+                            <span>Danh Sách Tòa Nhà</span>
+                        </div>
+                        <div className="p-2 bd-highlight">
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#themMoiModal"
+                            >
+                                Thêm Mới
+                            </button>
+                            <div className="modal fade" id="themMoiModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div className="modal-dialog modal-xl">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h1 className="modal-title fs-5" id="exampleModalLabel">Thêm Mới Tòa Nhà</h1>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div className="modal-body">
+                                            <div className='row d-flex align-items-stretch'>
+                                                <div className='col-4'>
+                                                    <h5>Vị trí của tòa nhà trên bản đồ</h5>
+                                                    <MapContainer
+                                                        center={[14.0583, 108.2772]} // Tọa độ trung tâm Việt Nam
+                                                        zoom={5} // Độ zoom phù hợp để hiển thị toàn bộ lãnh thổ
+                                                        style={{ height: '620px', width: '100%' }} // Kích thước của bản đồ
+                                                    >
+                                                        <TileLayer
+                                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                        />
+                                                        {userLocation && (
+                                                            <Marker
+                                                                position={userLocation}
+                                                                icon={currentLocationIcon} // Sử dụng biểu tượng tùy chỉnh
+                                                            />
+                                                        )}
+                                                        <MapWrapper />
+                                                    </MapContainer>
+                                                </div>
+                                                <div className='col-8'>
+                                                    <div className='row mb-2'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Tên Tòa Nhà</label>
+                                                            <input className='form-control' type='text'
+                                                                value={createBuilding.name}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    name : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Kiểu Tòa Nhà</label>
+                                                            <select className='form-control'
+                                                                value={createBuilding.id_type_building}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    id_type_building : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn kiểu tòa nhà</option>
+                                                                {
+                                                                    typeBuilding.map((value, key) => (
+                                                                        <option key={key} value={value.id}>{value.type_name}</option>
+                                                                    ))
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Địa Chỉ</label>
+                                                            <select className='form-control'
+                                                                value={createBuilding.id_map}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    id_map : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn địa chỉ</option>
+                                                                {
+                                                                    maps.map((value, key) => (
+                                                                        <option key={key} value={value.id}>{value.map_name}</option>
+                                                                    ))
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className='row mb-2'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Số Tầng</label>
+                                                            <input className='form-control' type='number'
+                                                                value={createBuilding.number_of_basement}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    number_of_basement : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Diện Tích</label>
+                                                            <input className='form-control' type='text'
+                                                                value={createBuilding.acreage}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    acreage : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Trạng Thái</label>
+                                                            <select className='form-control'
+                                                                value={createBuilding.status}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    status : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn trạng thái</option>
+                                                                <option value="1">Mở</option>
+                                                                <option value="0">Đóng</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className='row'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Mô Tả</label>
+                                                            <textarea style={{height: "470px"}} rows="10" className='form-control'
+                                                                value={createBuilding.description}
+                                                                onChange={(e) => setCreateBuilding({
+                                                                    ...createBuilding,
+                                                                    description : e.target.value
+                                                                })}
+                                                            ></textarea>
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Hình Ảnh</label>
+                                                            {/* chưa có ảnh thì hiển thị 4 khung ảnh rổng */}
+                                                            <input
+                                                                className="form-control"
+                                                                type="file"
+                                                                multiple
+                                                                accept=".jpg,.jpeg,.png"
+                                                                ref={inputFileCreateRef}
+                                                                onChange={handleImageChange} // Gắn hàm xử lý sự kiện
+                                                            />
+                                                            <div className='row mt-2'>
+                                                                {images.map((image, index) => (
+                                                                    <div className='col-6'>
+                                                                        <img key={index} style={{width:"300%", height:"200px", marginBottom:"20px", objectFit:"cover"}} src={image} alt={`Selected ${index}`} className="img-fluid" /> 
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                            <button type="button" className="btn btn-primary" onClick={() => handlCreateBuilding()}>Xác Nhận</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='card-body'>
                     <div className="table-responsive">
                         <table className="table table-bordered">
                             <thead>
-                            <tr>
-                                <th className="align-middle text-center">ID</th>
-                                <th className="align-middle text-center">Ảnh</th>
-                                <th className="align-middle text-center">Tên nhà</th>
-                                <th className="align-middle text-center">Kiến trúc</th>
-                                <th className="align-middle text-center">Gía</th>
-                                <th className="align-middle text-center">vị trí</th>
-                                <th className="align-middle text-center">kiểu</th>
-                                <th className="align-middle text-center">trạng thái</th>
-                                <th className="align-middle text-center">mô tả</th>
-                                <th className="align-middle text-center">số tầng</th>
-                                <th className="align-middle text-center">địa chỉ</th>
-                                <th colSpan={"5"}>Action</th>
-                            </tr>
+                                <tr>
+                                    <th className="align-middle text-center" style={{ width: "60px", height:"42px"}}>
+                                        {
+                                            listCheckBox.length > 0 ?
+                                            <>
+                                                <span type="button" className="text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                                    <Bag/>
+                                                </span>
+                                                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa Loại Tòa Nhà</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body ">
+                                                                <span>Bạn có chắc chắn muốn xóa <span className="text-danger">{listCheckBox.length}</span> kiểu toàn nhà này không?</span>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                                <button type="button" class="btn btn-primary" onClick={() => handlDeleteBuilding()}>Xác Nhận</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </> : 
+                                            <>
+                                            </>
+                                        }
+                                    </th>
+                                    <th className="align-middle text-center">Tên Tòa Nhà</th>
+                                    <th className="align-middle text-center">Kiểu Tòa Nhà</th>
+                                    <th className="align-middle text-center">Địa Chỉ</th>
+                                    <th className="align-middle text-center">Số Tầng</th>
+                                    <th className="align-middle text-center">Diện Tích</th>
+                                    <th className="align-middle text-center">Mô Tả</th>
+                                    <th className="align-middle text-center">Hình Ảnh</th>
+                                    <th className="align-middle text-center">Trạng Thái</th>
+                                    <th className="align-middle text-center">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {
-                                buildings?.map((building, index) => (
-                                    <tr key={index}>
-                                        <td>{building?.id}</td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input type="file"
-                                                       className="form-control"
-                                                       id="file" name={"file"}
-                                                       onChange={handleChooseFileChange}
-                                                       style={{width: "250px"}}
-                                                />
-                                            ) : (
-                                                <img src={`data:${building?.file_type};base64,${building?.image}`}
-                                                     alt={building?.file_type} width={"200px"}
-                                                />
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.name}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        name: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.name} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.structure}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        structure: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.structure} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.price}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        price: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.price} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.area}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        area: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.area} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-
-                                            {editingBuilding?.id === building.id ? (
-                                                <select name="type" onChange={(e) => setEditingBuilding({
-                                                    ...editingBuilding,
-                                                    type: e.target.value
-                                                })}>
-                                                    <option value={building?.type}>{building?.type}</option>
-                                                    <option value={"nhà cho thuê"}>
-                                                        {"nhà cho thuê"}
-                                                    </option>
-                                                    <option value={"nhà bán"}>
-                                                        {"nhà bán"}
-                                                    </option>
-                                                </select>
-                                            ) : (
-                                                <textarea value={building.type} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <select name="status" onChange={(e) => setEditingBuilding({
-                                                    ...editingBuilding,
-                                                    status: e.target.value
-                                                })}>
-                                                    <option value={building?.status}>{building?.status}</option>
-                                                    <option value={"nhà chưa bán"}>
-                                                        {"nhà chưa bán"}
-                                                    </option>
-                                                    <option value={"nhà đã bán"}>
-                                                        {"nhà đã bán"}
-                                                    </option>
-                                                    <option value={"nhà đã cho thuê"}>
-                                                        {"nhà đã cho thuê"}
-                                                    </option>
-                                                    <option value={"nhà chưa thuê"}>
-                                                        {"nhà chưa thuê"}
-                                                    </option>
-                                                </select>
-                                            ) : (
-                                                <textarea value={building.status} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.description}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        description: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.description} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <input
-                                                    type="text"
-                                                    value={editingBuilding.number_of_basement}
-                                                    onChange={(e) => setEditingBuilding({
-                                                        ...editingBuilding,
-                                                        number_of_basement: e.target.value
-                                                    })}
-                                                />
-                                            ) : (
-                                                <textarea value={building.number_of_basement} readOnly/>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <select name="map_id" onChange={(e) => setEditingBuilding({
-                                                    ...editingBuilding,
-                                                    map_id: e.target.value
-                                                })}>
-                                                    <option value={building?.map?.id}>
-                                                        {building?.map?.map_name}
-                                                    </option>
-                                                    {maps.map((map, index) => (
-                                                        <option key={index} value={map?.id}>
-                                                            {map?.map_name}
-                                                        </option>
-                                                    ))
-                                                    }
-                                                </select>
-                                            ) : (
-                                                <textarea value={building?.map?.map_name} readOnly/>
-                                            )}
-
-                                        </td>
-                                        {editingBuilding?.id === building.id ?
-                                            <td>
-                                                <Button className={'btn btn-danger'}
+                                {
+                                    buildings.map((value, key) => (
+                                        <>
+                                            <tr key={key} className={listCheckBox.includes(value.id) ? "table-secondary" : ""}>
+                                                <td className="text-center align-middle" style={{ width: "60px" }}>
+                                                    <Checkbox 
+                                                        checked={listCheckBox.includes(value.id)}
+                                                        onChange={() => {
+                                                            setListCheckBox((prev) => {
+                                                                if (prev.includes(value.id)) {
+                                                                    // Nếu đã có trong danh sách, loại bỏ nó
+                                                                    return prev.filter((id) => id !== value.id);
+                                                                } else {
+                                                                    // Nếu chưa có trong danh sách, thêm vào
+                                                                    return [...prev, value.id];
+                                                                }
+                                                            });
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td className="align-middle">{value.name}</td>
+                                                <td className="align-middle">{value.map.map_name}</td>
+                                                <td className="align-middle">{value.typeBuilding.type_name}</td>
+                                                <td className="align-middle text-center">{value.number_of_basement}</td>
+                                                <td className="align-middle text-center">{value.area}</td>
+                                                <td className="align-middle text-center">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#MoTaModal" onClick={() => setMoTa(value.description)}>
+                                                        Mô Tả
+                                                    </button>
+                                                    
+                                                </td>
+                                                <td className="align-middle text-center">
+                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#XemAnhModal" 
                                                         onClick={() => {
-                                                            setEditingBuilding(null);
-                                                        }}>
-                                                    X
-                                                </Button>
-                                            </td>
-                                            : null
-                                        }
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <div>
-                                                    <Button onClick={() => {
-                                                        handleSaveClick(building.id).then()
-                                                    }}>
-                                                        Lưu
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <Button
-                                                        className={'btn btn-warning'}
-                                                        onClick={() => handleEditClick(building)}>
-                                                        Sửa
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <div>
-                                                    <Button onClick={handleClone}>
-                                                        Tạo
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <Button
-                                                        className={'btn btn-success'}
-                                                        onClick={() => handleCloneClick(building)}>
-                                                        Nhân đôi
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {editingBuilding?.id === building.id ? (
-                                                <div>
-                                                    <Button onClick={handleUpload}>
-                                                        Đăng
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    <Button
-                                                        className={'btn btn-info'}
-                                                        onClick={() => {
-                                                            handleUpLoadClick(building)
-                                                        }}>
-                                                        Đăng ảnh
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <Button className={'btn btn-danger'}
-                                                    onClick={() => {
-                                                        deleteById(building?.id).then()
-                                                    }}
-                                            >Xóa</Button>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
+                                                            // Kiểm tra xem value.image có tồn tại không
+                                                            const imagesArray = value.image;
+                                                            setArrayImage(imagesArray);
+                                                            setUpdateBuilding(value)
+                                                        }}
+                                                    >
+                                                        Xem Ảnh
+                                                    </button>
+                                                </td>
+                                                <td className="align-middle text-center">
+                                                    {value.status === 1 ? (
+                                                        <button className="btn btn-success" style={{width:"100px"}} onClick={() => handleChangeStatus(value, 0)}>
+                                                            Mở
+                                                        </button>
+                                                    ) : (
+                                                        <button className="btn btn-warning" style={{width:"100px"}} onClick={() => handleChangeStatus(value, 1)}>
+                                                            Đóng
+                                                        </button>
+                                                    )}
+                                                </td>
+                                                <td className="align-middle text-center">
+                                                    <Space direction="vertical">
+                                                        <Space wrap>
+                                                            <Dropdown
+                                                                menu={{
+                                                                    items: [
+                                                                        {
+                                                                            key: "1",
+                                                                            label: (
+                                                                                <>
+                                                                                    <a onClick={() => setUpdateBuilding(value)} data-bs-toggle="modal"
+                                                                                    data-bs-target="#EditModal">Cập Nhật Thông Tin</a>
+                                                                                </>
+                                                                            ),
+                                                                        },
+                                                                    ],
+                                                                }}
+                                                                placement="bottomRight"
+                                                                trigger={["click"]}
+                                                            >
+                                                                <Button
+                                                                    icon={<Setting2/>}
+                                                                />
+                                                            </Dropdown>
+                                                        </Space>
+                                                    </Space>                                                    
+                                                </td>
+                                            </tr>
+                                        </>
+                                    ))
+                                }
                             </tbody>
+                            <div class="modal fade" id="MoTaModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Mô Tả Tòa Nhà</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <textarea rows="10" className='form-control' value={moTa}>
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="XemAnhModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Ảnh Tòa Nhà</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div className="row">
+                                                {arrayImage && arrayImage.length > 0 ? (
+                                                    arrayImage.map((imageUrl, index) => (
+                                                        <div className="col-3 mb-3" key={index}>
+                                                            <div
+                                                                style={{
+                                                                    width: '100%',
+                                                                    height: '200px', 
+                                                                    overflow: 'hidden',
+                                                                }}
+                                                            >
+                                                                <img
+                                                                    src={imageUrl}
+                                                                    alt={`Ảnh ${index + 1}`}
+                                                                    className="img-fluid"
+                                                                    style={{
+                                                                        width: '100%',
+                                                                        height: '100%',
+                                                                        objectFit: 'cover',
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p>Không có hình ảnh để hiển thị.</p>
+                                                )}
+                                            </div>
+                                            <div className='row'>
+                                                <div className='col'>
+                                                    <label className='mb-2'>Chỉnh Sửa Hình Ảnh</label>
+                                                    <input
+                                                        className="form-control"
+                                                        type="file"
+                                                        multiple
+                                                        accept=".jpg,.jpeg,.png"
+                                                        ref={inputFileRef}
+                                                        onChange={handleImageChange} // Gắn hàm xử lý sự kiện
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                            <button type="button" class="btn btn-primary" onClick={()=> handlUpdateImage()}>Xác Nhận</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Cập Nhật Tòa Nhà</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div className='row d-flex align-items-stretch'>
+                                                <div className='col-4'>
+                                                    <h5>Vị trí của tòa nhà trên bản đồ</h5>
+                                                    <MapContainer
+                                                        center={[14.0583, 108.2772]} // Tọa độ trung tâm Việt Nam
+                                                        zoom={5} // Độ zoom phù hợp để hiển thị toàn bộ lãnh thổ
+                                                        style={{ height: '620px', width: '100%' }} // Kích thước của bản đồ
+                                                    >
+                                                        <TileLayer
+                                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                        />
+                                                        {userLocation && (
+                                                            <Marker
+                                                                position={userLocation}
+                                                                icon={currentLocationIcon} // Sử dụng biểu tượng tùy chỉnh
+                                                            />
+                                                        )}
+                                                        <MapWrapper />
+                                                    </MapContainer>
+                                                </div>
+                                                <div className='col-8'>
+                                                    <div className='row mb-2'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Tên Tòa Nhà</label>
+                                                            <input className='form-control' type='text'
+                                                                value={updateBuilding.name}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    name : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Kiểu Tòa Nhà</label>
+                                                            <select className='form-control'
+                                                                value={updateBuilding?.typeBuilding?.id}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    id_type_building : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn kiểu tòa nhà</option>
+                                                                {
+                                                                    typeBuilding.map((value, key) => (
+                                                                        <option key={key} value={value.id}>{value.type_name}</option>
+                                                                    ))
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Địa Chỉ</label>
+                                                            <select className='form-control'
+                                                                value={updateBuilding?.map?.id}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    id_map : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn địa chỉ</option>
+                                                                {
+                                                                    maps.map((value, key) => (
+                                                                        <option key={key} value={value.id}>{value.map_name}</option>
+                                                                    ))
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className='row mb-2'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Số Tầng</label>
+                                                            <input className='form-control' type='number'
+                                                                value={updateBuilding.number_of_basement}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    number_of_basement : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Diện Tích</label>
+                                                            <input className='form-control' type='text'
+                                                                value={updateBuilding.area}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    area : e.target.value
+                                                                })}
+                                                            />
+                                                        </div>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Trạng Thái</label>
+                                                            <select className='form-control'
+                                                                value={updateBuilding.status}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    status : e.target.value
+                                                                })}
+                                                            >
+                                                                <option value="">Vui lòng chọn trạng thái</option>
+                                                                <option value="1">Mở</option>
+                                                                <option value="0">Đóng</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className='row'>
+                                                        <div className='col'>
+                                                            <label className='mb-2'>Mô Tả</label>
+                                                            <textarea style={{height: "470px"}} rows="10" className='form-control'
+                                                                value={updateBuilding.description}
+                                                                onChange={(e) => setUpdateBuilding({
+                                                                    ...updateBuilding,
+                                                                    description : e.target.value
+                                                                })}
+                                                            ></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                            <button type="button" class="btn btn-primary" onClick={() => handlUpdateBuilding()}>Xác Nhận</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </table>
                     </div>
+                    <nav className="m-b-30" aria-label="Page navigation example">
+                        <ul className="pagination justify-content-end pagination-primary">
+                            {pagination.current_page > 1 && (
+                                <li className="page-item">
+                                    <a
+                                        className="page-link"
+                                        href="#"
+                                        aria-label="Previous"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(pagination.current_page - 1);
+                                        }}
+                                    >
+                                        <span aria-hidden="true">Pre</span>
+                                    </a>
+                                </li>
+                            )}
+
+                            {pagesNumber.map((page) => (
+                                <li
+                                    key={page}
+                                    className={`page-item ${page === isActived ? 'active' : ''}`}
+                                >
+                                    <a
+                                        className="page-link"
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(page);
+                                        }}
+                                    >
+                                        {page}
+                                    </a>
+                                </li>
+                            ))}
+
+                            {pagination.current_page < pagination.last_page && (
+                                <li className="page-item">
+                                    <a
+                                        href="#"
+                                        className="page-link"
+                                        aria-label="Next"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            changePage(pagination.current_page + 1);
+                                        }}
+                                    >
+                                        <span aria-hidden="true">Next</span>
+                                    </a>
+                                </li>
+                            )}
+                        </ul>
+                    </nav>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
