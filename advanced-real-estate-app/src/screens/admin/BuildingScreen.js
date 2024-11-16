@@ -21,21 +21,16 @@ const BuildingScreen = () => {
     const [createBuilding, setCreateBuilding] = useState({ image: null });
     const [updateBuilding, setUpdateBuilding] = useState({});
     const [moTa, setMoTa] = useState("");
-    const [arrayImage,setArrayImage] = useState([]);
+    const [arrayImage, setArrayImage] = useState([]);
     const [typeBuilding, setTypeBuilding] = useState([]);
     const [maps, setMaps] = useState([]);
     const [userLocation, setUserLocation] = useState(null); // Tọa độ người dùng
     const [destinationLocation, setDestinationLocation] = useState(null); // Tọa độ địa chỉ được chọn
+    const [destinationLocationUpdate, setDestinationLocationUpdate] = useState(null); // Tọa độ địa chỉ được chọn
     const [images, setImages] = useState([]); 
     const [files, setFiles] = useState([]); 
     const inputFileRef = useRef(null);
     const inputFileCreateRef = useRef(null);
-    // Định nghĩa biểu tượng `currentLocationIcon` với kích thước và ảnh tùy chỉnh
-    const currentLocationIcon = L.icon({
-        iconUrl: appInfo.currentLocationIcon,
-        iconSize: [35, 35],
-        iconAnchor: [17, 35] 
-    });
 
     const [pagination, setPagination] = useState({
         total: 0,
@@ -137,39 +132,210 @@ const BuildingScreen = () => {
         return pagesArray;
     }, [pagination, offset]);
 
-    // Component để kích hoạt invalidateSize và vẽ tuyến đường khi modal mở
+    // Icon vị trí hiện tại
+    const currentLocationIcon = L.icon({
+        iconUrl: appInfo.currentLocationIcon,
+        iconSize: [35, 35],
+        iconAnchor: [17, 35] 
+    });
+
+    // Icon điểm đích
+    const buildingLocationIcon = L.icon({
+        iconUrl: appInfo.vitri4,
+        iconSize: [27, 37],
+        iconAnchor: [12, 41]
+    });
+
+    // Component để vẽ tuyến đường khi `destinationLocation` thay đổi
+    const ShowMapWrapper = () => {
+        const map = useMap();
+    
+        useEffect(() => {
+            // Xóa attribution của OpenStreetMap
+            map.attributionControl.remove();
+            
+            // Invalidate kích thước của bản đồ khi mở modal
+            const handleModalShown = () => {
+                map.invalidateSize(); // Cập nhật lại kích thước của bản đồ khi modal mở
+            };
+    
+            // Lắng nghe sự kiện mở modal
+            const modalElement = document.getElementById('themMoiModal');
+            modalElement?.addEventListener('shown.bs.modal', handleModalShown);
+    
+            // Cleanup để tránh rò rỉ bộ nhớ
+            return () => {
+                modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
+            };
+        }, [map]);
+    
+        return null;
+    };
+
     const MapWrapper = () => {
         const map = useMap();
-        useEffect(() => {
-            const handleModalShown = () => {
-                map.invalidateSize(); // Invalidate kích thước khi modal mở
+        const routingControlRef = useRef(null);
 
-                // Vẽ tuyến đường nếu có vị trí người dùng và điểm đích
+        useEffect(() => {
+            // Hàm vẽ tuyến đường giữa `userLocation` và `destinationLocation`
+            const drawRoute = () => {
+                // Xóa tuyến đường cũ nếu có
+                if (routingControlRef.current) {
+                    routingControlRef.current.setWaypoints([]);
+                    map.removeControl(routingControlRef.current);
+                }
+
+                // Vẽ tuyến đường mới nếu có vị trí người dùng và điểm đích
                 if (userLocation && destinationLocation) {
-                    L.Routing.control({
+                    routingControlRef.current = L.Routing.control({
                         waypoints: [
                             L.latLng(userLocation[0], userLocation[1]),
                             L.latLng(destinationLocation[0], destinationLocation[1])
                         ],
                         routeWhileDragging: true,
+                        addWaypoints: false, // Không cho phép thêm waypoint khi kéo
+                        createMarker: function () { return null; }, // Ẩn marker mặc định của Routing
                     }).addTo(map);
                 }
             };
 
+            drawRoute();
+
+            // Hàm để invalidate kích thước khi modal mở
+            const handleModalShown = () => {
+                map.attributionControl.remove();
+                map.invalidateSize(); // Cập nhật lại kích thước của bản đồ khi modal mở
+                drawRoute(); // Vẽ lại tuyến đường sau khi invalidate kích thước
+            };
+
             // Lắng nghe sự kiện mở modal
             const modalElement = document.getElementById('themMoiModal');
-            const modalElement1 = document.getElementById('EditModal');
             modalElement?.addEventListener('shown.bs.modal', handleModalShown);
-            modalElement1?.addEventListener('shown.bs.modal', handleModalShown);
 
-            // Cleanup để tránh lắng nghe sự kiện dư thừa
+            // Cleanup để tránh rò rỉ bộ nhớ
             return () => {
                 modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
-                modalElement1?.removeEventListener('shown.bs.modal', handleModalShown);
+                if (routingControlRef.current) {
+                    routingControlRef.current.setWaypoints([]);
+                    map.removeControl(routingControlRef.current);
+                }
             };
-        }, [map, userLocation, destinationLocation]);
+        }, [destinationLocation]);
 
         return null;
+    };
+
+    const MapWrapperUpdate = () => {
+        const map = useMap();
+        const routingControlRef = useRef(null);
+    
+        useEffect(() => {
+            const drawRoute = () => {
+                if (routingControlRef.current) {
+                    routingControlRef.current.setWaypoints([]);
+                    map.removeControl(routingControlRef.current);
+                }
+    
+                if (userLocation && destinationLocationUpdate) {
+                    routingControlRef.current = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLocation[0], userLocation[1]),
+                            L.latLng(destinationLocationUpdate[0], destinationLocationUpdate[1])
+                        ],
+                        routeWhileDragging: true,
+                        addWaypoints: false,
+                        createMarker: () => null,
+                    }).addTo(map);
+                }
+            };
+    
+            drawRoute();
+    
+            const handleModalShown = () => {
+                map.attributionControl.remove();
+                map.invalidateSize();
+                drawRoute();
+            };
+    
+            const modalElement = document.getElementById('EditModal');
+            modalElement?.addEventListener('shown.bs.modal', handleModalShown);
+    
+            return () => {
+                modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
+                if (routingControlRef.current) {
+                    routingControlRef.current.setWaypoints([]);
+                    map.removeControl(routingControlRef.current);
+                }
+            };
+        }, [destinationLocationUpdate]);
+    
+        return null;
+    };
+
+    useEffect(() => {
+        const selectedMap = maps.find(map => map.id === createBuilding.id_map);
+        if (selectedMap) {
+            setDestinationLocation([selectedMap.latitude, selectedMap.longitude]);
+        }
+    }, [createBuilding.id_map]);
+
+    useEffect(() => {
+        const selectedMap = maps.find(map => map.id === updateBuilding.id_map);
+        if (selectedMap) {
+            setDestinationLocationUpdate([selectedMap.latitude, selectedMap.longitude]);
+        }
+    }, [updateBuilding.id_map]);
+                
+    const handleSelectChange = (e) => {
+        const selectedMapId = e.target.value;
+        const selectedMap = maps.find((map) => map.id === selectedMapId);
+    
+        setCreateBuilding((prev) => ({
+            ...prev,
+            id_map: selectedMapId
+        }));
+    
+        if (selectedMap) {
+            setDestinationLocation([selectedMap.latitude, selectedMap.longitude]);
+        }
+    };
+    
+    const handleEditSelectChange = (e) => {
+        const selectedMapId = e.target.value;
+        const selectedMap = maps.find((map) => map.id === selectedMapId);
+    
+        // Cập nhật updateBuilding với map mới
+        setUpdateBuilding((prev) => ({
+            ...prev,
+            id_map : selectedMapId
+        }));
+    
+        // Cập nhật tọa độ cho destinationLocationUpdate nếu có
+        if (selectedMap) {
+            setDestinationLocationUpdate([selectedMap.latitude, selectedMap.longitude]);
+        }
+    };
+
+    const handleEditButtonClick = (building) => {
+        
+        const updatedBuilding = {
+            ...building,
+            id_map: building.map?.id || "",
+            id_type_building: building.typeBuilding?.id || "",
+        };
+
+        // Cập nhật `destinationLocationUpdate` với tọa độ của tòa nhà
+        if (building.map) {
+            setDestinationLocationUpdate([building.map.latitude, building.map.longitude]);
+        }
+
+        // Loại bỏ các object không cần thiết
+        delete updatedBuilding.map;
+        delete updatedBuilding.typeBuilding;
+        delete updatedBuilding.image;
+
+        // Cập nhật state
+        setUpdateBuilding(updatedBuilding);
     }
 
     const handleImageChange = (e) => { 
@@ -221,36 +387,56 @@ const BuildingScreen = () => {
     }
 
     const handleChangeStatus = async (value, newStatus) => {
+        // Chuẩn hóa dữ liệu trước khi gửi API
+        const updatedBuilding = {
+            ...value,
+            id_map: value.map?.id || "",
+            id_type_building: value.typeBuilding?.id || "",
+            status: newStatus,
+        };
+    
+        // Loại bỏ các object không cần thiết
+        delete updatedBuilding.map;
+        delete updatedBuilding.typeBuilding;
+        delete updatedBuilding.image;
+    
+        console.log("Updated Building:", updatedBuilding);
+    
         const url = `/api/admin/buildings/${value.id}`;
-        const updatedNew = { ...value, status: newStatus };
+    
         try {
-            const res = await handleAPI(url, updatedNew, "put", auth?.token)
-            console.log(res.status);
-            
-            if(res.status === 200) {
+            // Gửi yêu cầu cập nhật trạng thái
+            const res = await handleAPI(url, updatedBuilding, "put", auth?.token);
+            console.log("Response Status:", res.status);
+    
+            if (res.status === 200) {
                 Toast("success", res.message);
-                getData(pagination.current_page);
-                setUpdateBuilding({
-                    id_map : "",
-                    id_type_building : "",
-                    description : "",
-                    name : "",
-                    status : 0,
-                    number_of_basement : 0,
-                    acreage : ""
-                });
                 
+                // Cập nhật lại danh sách sau khi thay đổi thành công
+                getData(pagination.current_page);
             }
         } catch (error) {
             Toast("error", error.message);
+        } finally {
+            // Reset lại state sau khi xử lý xong
+            setUpdateBuilding({
+                id_map: "",
+                id_type_building: "",
+                description: "",
+                name: "",
+                status: 0,
+                number_of_basement: 0,
+                acreage: ""
+            });
         }
-    }
+    };
+    
 
     const handlUpdateBuilding = async () => {
         const url = `/api/admin/buildings/${updateBuilding.id}`;
         // copy value và loại bỏ area trong updateBuilding thay vào đó là acreage
-        const { area, ...rest } = updateBuilding;
-        const updatedNew = { ...rest, acreage: area };
+        const { area, map, typeBuilding, ...rest } = updateBuilding;
+        const updatedNew = { ...rest, acreage: area};
         console.log(updatedNew);
         
         try {
@@ -396,7 +582,18 @@ const BuildingScreen = () => {
                                                                 icon={currentLocationIcon} // Sử dụng biểu tượng tùy chỉnh
                                                             />
                                                         )}
-                                                        <MapWrapper />
+                                                        {/* Kiểm tra nếu có destinationLocation và id_map không rỗng thì hiển thị tuyến đường */}
+                                                        {createBuilding.id_map && destinationLocation ? (
+                                                            <>
+                                                                <Marker
+                                                                position={destinationLocation}
+                                                                icon={buildingLocationIcon} // Sử dụng biểu tượng tùy chỉnh cho điểm đích
+                                                                />
+                                                                <MapWrapper />
+                                                            </>
+                                                        ) : (
+                                                            <ShowMapWrapper />
+                                                        )}
                                                     </MapContainer>
                                                 </div>
                                                 <div className='col-8'>
@@ -432,10 +629,7 @@ const BuildingScreen = () => {
                                                             <label className='mb-2'>Địa Chỉ</label>
                                                             <select className='form-control'
                                                                 value={createBuilding.id_map}
-                                                                onChange={(e) => setCreateBuilding({
-                                                                    ...createBuilding,
-                                                                    id_map : e.target.value
-                                                                })}
+                                                                onChange={handleSelectChange}
                                                             >
                                                                 <option value="">Vui lòng chọn địa chỉ</option>
                                                                 {
@@ -636,7 +830,14 @@ const BuildingScreen = () => {
                                                                             key: "1",
                                                                             label: (
                                                                                 <>
-                                                                                    <a onClick={() => setUpdateBuilding(value)} data-bs-toggle="modal"
+                                                                                    <a 
+                                                                                        onClick={() => handleEditButtonClick(value)}
+                                                                                    // onClick={() => {
+                                                                                    //     setUpdateBuilding(value);
+                                                                                    //     // setDestinationLocation([value.map.latitude, value.map.longitude]);
+                                                                                    //     setDestinationLocationUpdate([value.map.latitude, value.map.longitude]);
+                                                                                    // }}
+                                                                                    data-bs-toggle="modal"
                                                                                     data-bs-target="#EditModal">Cập Nhật Thông Tin</a>
                                                                                 </>
                                                                             ),
@@ -741,21 +942,21 @@ const BuildingScreen = () => {
                                                 <div className='col-4'>
                                                     <h5>Vị trí của tòa nhà trên bản đồ</h5>
                                                     <MapContainer
-                                                        center={[14.0583, 108.2772]} // Tọa độ trung tâm Việt Nam
-                                                        zoom={5} // Độ zoom phù hợp để hiển thị toàn bộ lãnh thổ
-                                                        style={{ height: '620px', width: '100%' }} // Kích thước của bản đồ
+                                                        center={[14.0583, 108.2772]}
+                                                        zoom={5}
+                                                        style={{ height: '620px', width: '100%' }}
                                                     >
                                                         <TileLayer
                                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                                         />
                                                         {userLocation && (
-                                                            <Marker
-                                                                position={userLocation}
-                                                                icon={currentLocationIcon} // Sử dụng biểu tượng tùy chỉnh
-                                                            />
+                                                            <Marker position={userLocation} icon={currentLocationIcon} />
                                                         )}
-                                                        <MapWrapper />
+                                                        {destinationLocationUpdate && (
+                                                            <Marker position={destinationLocationUpdate} icon={buildingLocationIcon} />
+                                                        )}
+                                                        <MapWrapperUpdate />
                                                     </MapContainer>
                                                 </div>
                                                 <div className='col-8'>
@@ -772,24 +973,27 @@ const BuildingScreen = () => {
                                                         </div>
                                                         <div className='col'>
                                                             <label className='mb-2'>Kiểu Tòa Nhà</label>
-                                                            <select className='form-control'
-                                                                value={updateBuilding?.typeBuilding?.id}
-                                                                onChange={(e) => setUpdateBuilding({
-                                                                    ...updateBuilding,
-                                                                    id_type_building : e.target.value
-                                                                })}
+                                                            <select 
+                                                                className='form-control'
+                                                                value={updateBuilding?.id_type_building || ""}
+                                                                onChange={(e) => {
+                                                                    setUpdateBuilding({
+                                                                        ...updateBuilding,
+                                                                        id_type_building : e.target.value
+                                                                    });
+                                                                }}
                                                             >
                                                                 <option value="">Vui lòng chọn kiểu tòa nhà</option>
-                                                                {
-                                                                    typeBuilding.map((value, key) => (
-                                                                        <option key={key} value={value.id}>{value.type_name}</option>
-                                                                    ))
-                                                                }
+                                                                {typeBuilding.map((value) => (
+                                                                    <option key={value.id} value={value.id}>
+                                                                        {value.type_name}
+                                                                    </option>
+                                                                ))}
                                                             </select>
                                                         </div>
                                                         <div className='col'>
                                                             <label className='mb-2'>Địa Chỉ</label>
-                                                            <select className='form-control'
+                                                            {/* <select className='form-control'
                                                                 value={updateBuilding?.map?.id}
                                                                 onChange={(e) => setUpdateBuilding({
                                                                     ...updateBuilding,
@@ -802,6 +1006,18 @@ const BuildingScreen = () => {
                                                                         <option key={key} value={value.id}>{value.map_name}</option>
                                                                     ))
                                                                 }
+                                                            </select> */}
+                                                            <select 
+                                                                className='form-control'
+                                                                value={updateBuilding?.id_map || ""}
+                                                                onChange={handleEditSelectChange}
+                                                            >
+                                                                <option value="">Vui lòng chọn địa chỉ</option>
+                                                                {maps.map((value) => (
+                                                                    <option key={value.id} value={value.id}>
+                                                                        {value.map_name}
+                                                                    </option>
+                                                                ))}
                                                             </select>
                                                         </div>
                                                     </div>
