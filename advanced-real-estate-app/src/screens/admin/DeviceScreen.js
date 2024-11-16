@@ -50,7 +50,7 @@ const DeviceScreen = () => {
         const url = `/api/admin/buildings`;
         try {
             const data = await handleAPI(url, {}, "get", auth?.token);
-            setBuilding(data.data);
+            setBuilding(data.data.data);
             console.log(data);
         } catch (error) {
             console.log(error);
