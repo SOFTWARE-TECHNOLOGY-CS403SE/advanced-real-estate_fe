@@ -7,9 +7,11 @@ import vitri5 from "../assets/img/2928883.png";
 import nha1 from "../assets/img/nha.png";
 import currentLocationIcon from "../assets/img/current_location-icon.png";
 import logo_project from "../assets/img/logo_project.jpg";
+import logo_project2 from "../assets/img/logo.png";
 
 export const appInfo = {
 	logo_project,
+	logo_project2,
 	logo: '/static/media/Logo.dac44c6881253282d209.png',
 	title: 'ADVANCED REAL ESTATE',
 	description: '',

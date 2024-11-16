@@ -44,13 +44,18 @@ const DauGiaComponent = () => {
     }, [userData.connected, roomId]);
 
     useEffect(() => {
-        if(auctionReducer?.bidMessages?.length > 0){
+        if (auctionReducer?.bidMessages?.length > 0) {
             const maxBid = appVariables.findMax(auctionReducer?.bidMessages);
-            setBidAmount(parseFloat(maxBid));
-            setHighestBid(parseFloat(maxBid));
-        }else{
-            setBidAmount(parseFloat(auctionReducer?.auction?.price));
-            setHighestBid(parseFloat(auctionReducer?.auction?.price));
+            if (parseFloat(maxBid) !== highestBid) {
+                setBidAmount(parseFloat(maxBid));
+                setHighestBid(parseFloat(maxBid));
+            }
+        } else {
+            const auctionPrice = parseFloat(auctionReducer?.auction?.price);
+            if (auctionPrice !== highestBid) {
+                setBidAmount(auctionPrice);
+                setHighestBid(auctionPrice);
+            }
         }
     }, [auctionReducer?.bidMessages, userData.connected, roomId]);
 
@@ -66,6 +71,7 @@ const DauGiaComponent = () => {
                 auctionReducer?.auction?.end_time,
                 dispatch,
                 updatedAuctionRoom,
+                removeBidMessages,
                 auctionReducer
             );
             setTimeLeft(countdown);
@@ -86,7 +92,20 @@ const DauGiaComponent = () => {
             },
             onConnect: () => {
                 // console.log("WebSocket connected!");
-                onConnected();
+                stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
+                    onMessageReceived(message).then();
+                });
+                stompClient.publish({
+                    destination: `/app/userJoinAuction/${roomId}`,
+                    body: JSON.stringify({
+                        sender: auth?.info?.email,
+                        email: auth?.info?.email,
+                        client_id: auth?.info?.id,
+                        auction_id: roomId,
+                        type: "JOIN",
+                        roomId
+                    }),
+                });
             },
             onStompError: (frame) => {
                 console.error("ERROR STOMP:", frame);
@@ -103,23 +122,6 @@ const DauGiaComponent = () => {
         } catch (error) {
             console.error("Error activating WebSocket:", error);
         }
-    };
-
-    const onConnected = () => {
-        stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
-            onMessageReceived(message).then();
-        });
-
-        stompClient.publish({
-            destination: `/app/userJoinAuction/${roomId}`,
-            body: JSON.stringify({
-                sender: auth?.info?.email,
-                email: auth?.info?.email,
-                client_id: auth?.info?.id,
-                auction_id: roomId,
-                type: "JOIN", roomId
-            }),
-        });
     };
 
     const disconnect = async () => {
@@ -152,7 +154,7 @@ const DauGiaComponent = () => {
         if(message?.count){
             setCountUser(message?.count);
         }
-    };
+    }
 
     const handleBidSubmit = () => {
         const newBid = parseFloat(bidAmount);
@@ -190,11 +192,11 @@ const DauGiaComponent = () => {
     const handleBidChange = (e) => {
         const bidAmount = parseFloat(e.target.value);
         setBidAmount(bidAmount || 0);
-    };
+    }
 
     const deleteBidMessage = () => {
        dispatch(removeBidMessages());
-    };
+    }
 
     const handleIncrement = () => {
         setBidAmount((prevBid) => prevBid + 1000000);

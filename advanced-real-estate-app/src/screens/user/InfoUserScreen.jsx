@@ -18,11 +18,11 @@ const InfoUserScreen = () => {
 
     const getUserInfo = async () =>{
         try{
-            const res = await handleAPI(`/api/users/${auth?.info?.id}`, {}, "GET", auth?.token);
+            const res = await handleAPI(`/api/users/my-info`, {}, "GET", auth?.token);
             return res;
         }catch (e) {
             message.error(e.message);
-            console.log("Update error: ", e);
+            console.log("Error: ", e);
         }
     }
 
@@ -92,11 +92,11 @@ const InfoUserScreen = () => {
                                         </div>
                                     </div>
                                     <div className={styles.userInfoCardContent}>
-                                        <p><strong>Họ và tên:</strong> {user?.username}</p>
+                                        <p><strong>Họ và tên:</strong> {user?.user_name}</p>
                                         <p><strong>Email:</strong> {user?.email}</p>
-                                        <p><strong>Họ:</strong> {user?.firstName}</p>
-                                        <p><strong>Tên:</strong> {user?.lastName}</p>
-                                        <p><strong>Số điện thoại:</strong> {user?.phoneNumber}</p>
+                                        <p><strong>Họ:</strong> {user?.first_name}</p>
+                                        <p><strong>Tên:</strong> {user?.last_name}</p>
+                                        <p><strong>Số điện thoại:</strong> {user?.phone_number}</p>
                                         <p><strong>Giới tính:</strong> {user?.gender}</p>
                                         <p><strong>Ngày sinh:</strong> {user?.birthday}</p>
                                         <p><strong>Địa chỉ:</strong> {user?.address}</p>

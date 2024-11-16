@@ -48,7 +48,7 @@ const Header = () => {
                     <div className="col-lg-3 bg-dark d-none d-lg-block">
                         <Link className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
                          to={"/"}>
-                            <img className={styles.logoProject} src={appInfo?.logo_project} alt="no logo"/>
+                            <img className={styles.logoProject} src={appInfo?.logo_project2} alt="no logo"/>
                             {/*<h6 className={`m-0 text-primary text-uppercase ${styles.titleProject}`}>*/}
                             {/*    {appInfo.title}*/}
                             {/*</h6>*/}
