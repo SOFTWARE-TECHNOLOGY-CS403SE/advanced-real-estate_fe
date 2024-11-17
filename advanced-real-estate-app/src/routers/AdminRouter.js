@@ -22,6 +22,7 @@ import AuctionScreen from "../screens/admin/AuctionScreen";
 import TypeBuildingScreen from "../screens/admin/TypeBuildingScreen";
 import DeviceScreen from "../screens/admin/DeviceScreen";
 import CategoryScreen from "../screens/admin/CategoryScreen";
+import ContractDeTail from "../screens/admin/ContractDetail";
 
 const { Content } = Layout;
 
@@ -177,6 +178,14 @@ function AdminRouter() {
                             element={
                                 <PrivateRoute path="/admin/building">
                                     <BuildingScreen />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="contract-detail"
+                            element={
+                                <PrivateRoute path="/admin/contract-detail">
+                                    <ContractDeTail />
                                 </PrivateRoute>
                             }
                         />
