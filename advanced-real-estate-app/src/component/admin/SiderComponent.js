@@ -104,6 +104,16 @@ const SiderComponent = () => {
             url: path + "/building",
         },
         {
+            key: "contract-detail",
+            label: (
+                <Link style={{ textDecoration: "none" }} to={path + "/contract-detail"}>
+                    Quản Lý Chi Tiết Hợp Đồng
+                </Link>
+            ),
+            icon: <House size={20} />,
+            url: path + "/auction",
+        },
+        {
             key: "service",
             label: (
                 <Link style={{ textDecoration: "none" }} to={path + "/service"}>

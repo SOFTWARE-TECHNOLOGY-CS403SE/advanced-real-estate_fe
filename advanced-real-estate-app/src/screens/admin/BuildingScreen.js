@@ -32,6 +32,10 @@ const BuildingScreen = () => {
     const inputFileRef = useRef(null);
     const inputFileCreateRef = useRef(null);
 
+    const mapRef = useRef(null); // Tham chiếu tới bản đồ
+    const routingControlRef = useRef(null); // Tham chiếu tới điều khiển định tuyến
+    const markersRef = useRef([]); // Tham chiếu tới tất cả các markers đã thêm
+
     const [pagination, setPagination] = useState({
         total: 0,
         per_page: 2,
@@ -96,6 +100,22 @@ const BuildingScreen = () => {
         getData(pagination.current_page);
         getDataTypeBuilding();
         getDataMap();
+        return () => {
+            // Cleanup - Xóa mọi thứ khi component bị unmount
+            if (routingControlRef.current) {
+                routingControlRef.current.setWaypoints([]);
+                mapRef.current.removeControl(routingControlRef.current);
+                routingControlRef.current = null;
+            }
+
+            // Xóa tất cả các marker
+            markersRef.current.forEach(marker => {
+                if (mapRef.current && mapRef.current.hasLayer(marker)) {
+                    mapRef.current.removeLayer(marker);
+                }
+            });
+            markersRef.current = [];
+        };
     }, [pagination.current_page]);
 
     // Hàm để thay đổi trang
@@ -104,7 +124,6 @@ const BuildingScreen = () => {
             ...prev,
             current_page: page
         }));
-
         getData(page);
     };
 
@@ -172,103 +191,156 @@ const BuildingScreen = () => {
         return null;
     };
 
-    const MapWrapper = () => {
+    const MapWrapper = ({ destination, userLocation }) => {
         const map = useMap();
-        const routingControlRef = useRef(null);
+        mapRef.current = map; // Lưu tham chiếu bản đồ
 
         useEffect(() => {
+            // Hàm để thêm Marker cho vị trí người dùng và đích đến
+            const addMarkers = () => {
+                // Xóa tất cả các marker trước khi thêm mới
+                markersRef.current.forEach(marker => {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                });
+                markersRef.current = [];
+
+                if (userLocation) {
+                    const userMarker = L.marker(userLocation, { icon: currentLocationIcon }).addTo(map);
+                    markersRef.current.push(userMarker);
+                }
+                if (destination) {
+                    const destinationMarker = L.marker(destination, { icon: buildingLocationIcon }).addTo(map);
+                    markersRef.current.push(destinationMarker);
+                }
+            };
+
             // Hàm vẽ tuyến đường giữa `userLocation` và `destinationLocation`
             const drawRoute = () => {
                 // Xóa tuyến đường cũ nếu có
                 if (routingControlRef.current) {
                     routingControlRef.current.setWaypoints([]);
                     map.removeControl(routingControlRef.current);
+                    routingControlRef.current = null;
                 }
 
                 // Vẽ tuyến đường mới nếu có vị trí người dùng và điểm đích
-                if (userLocation && destinationLocation) {
+                if (userLocation && destination) {
                     routingControlRef.current = L.Routing.control({
                         waypoints: [
                             L.latLng(userLocation[0], userLocation[1]),
-                            L.latLng(destinationLocation[0], destinationLocation[1])
+                            L.latLng(destination[0], destination[1])
                         ],
                         routeWhileDragging: true,
-                        addWaypoints: false, // Không cho phép thêm waypoint khi kéo
-                        createMarker: function () { return null; }, // Ẩn marker mặc định của Routing
+                        addWaypoints: false,
+                        createMarker: function () { return null; } // Ẩn marker mặc định của Routing
                     }).addTo(map);
                 }
             };
 
+            // Thực hiện thêm marker và vẽ tuyến đường
+            addMarkers();
             drawRoute();
 
-            // Hàm để invalidate kích thước khi modal mở
-            const handleModalShown = () => {
-                map.attributionControl.remove();
-                map.invalidateSize(); // Cập nhật lại kích thước của bản đồ khi modal mở
-                drawRoute(); // Vẽ lại tuyến đường sau khi invalidate kích thước
-            };
-
-            // Lắng nghe sự kiện mở modal
-            const modalElement = document.getElementById('themMoiModal');
-            modalElement?.addEventListener('shown.bs.modal', handleModalShown);
-
-            // Cleanup để tránh rò rỉ bộ nhớ
+            // Cleanup - Xóa các lớp, marker và routing khi component bị unmount
             return () => {
-                modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
                 if (routingControlRef.current) {
                     routingControlRef.current.setWaypoints([]);
                     map.removeControl(routingControlRef.current);
+                    routingControlRef.current = null;
                 }
+
+                markersRef.current.forEach(marker => {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                });
+                markersRef.current = [];
             };
-        }, [destinationLocation]);
+        }, [destination, userLocation, map]);
 
         return null;
     };
 
-    const MapWrapperUpdate = () => {
+    const MapWrapperUpdate = ({ destination, userLocation }) => {
         const map = useMap();
-        const routingControlRef = useRef(null);
-    
+        mapRef.current = map; // Lưu tham chiếu bản đồ
+
         useEffect(() => {
+            // Hàm để thêm Marker cho vị trí người dùng và đích đến
+            const addMarkers = () => {
+                // Xóa tất cả các marker trước khi thêm mới
+                markersRef.current.forEach(marker => {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                });
+                markersRef.current = [];
+
+                if (userLocation) {
+                    const userMarker = L.marker(userLocation, { icon: currentLocationIcon }).addTo(map);
+                    markersRef.current.push(userMarker);
+                }
+                if (destination) {
+                    const destinationMarker = L.marker(destination, { icon: buildingLocationIcon }).addTo(map);
+                    markersRef.current.push(destinationMarker);
+                }
+            };
+
+            // Hàm vẽ tuyến đường giữa `userLocation` và `destinationLocation`
             const drawRoute = () => {
+                // Xóa tuyến đường cũ nếu có
                 if (routingControlRef.current) {
                     routingControlRef.current.setWaypoints([]);
                     map.removeControl(routingControlRef.current);
+                    routingControlRef.current = null;
                 }
-    
-                if (userLocation && destinationLocationUpdate) {
+
+                // Vẽ tuyến đường mới nếu có vị trí người dùng và điểm đích
+                if (userLocation && destination) {
                     routingControlRef.current = L.Routing.control({
                         waypoints: [
                             L.latLng(userLocation[0], userLocation[1]),
-                            L.latLng(destinationLocationUpdate[0], destinationLocationUpdate[1])
+                            L.latLng(destination[0], destination[1])
                         ],
                         routeWhileDragging: true,
                         addWaypoints: false,
-                        createMarker: () => null,
+                        createMarker: function () { return null; } // Ẩn marker mặc định của Routing
                     }).addTo(map);
                 }
             };
-    
-            drawRoute();
-    
+
             const handleModalShown = () => {
                 map.attributionControl.remove();
                 map.invalidateSize();
+                addMarkers();
                 drawRoute();
             };
-    
             const modalElement = document.getElementById('EditModal');
             modalElement?.addEventListener('shown.bs.modal', handleModalShown);
-    
+            // Thực hiện thêm marker và vẽ tuyến đường
+            // addMarkers();
+            // drawRoute();
+
+            // Cleanup - Xóa các lớp, marker và routing khi component bị unmount
             return () => {
                 modalElement?.removeEventListener('shown.bs.modal', handleModalShown);
                 if (routingControlRef.current) {
                     routingControlRef.current.setWaypoints([]);
                     map.removeControl(routingControlRef.current);
+                    routingControlRef.current = null;
                 }
+
+                markersRef.current.forEach(marker => {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                });
+                markersRef.current = [];
             };
-        }, [destinationLocationUpdate]);
-    
+        }, [destination, userLocation, map]);
+
         return null;
     };
 
@@ -589,7 +661,8 @@ const BuildingScreen = () => {
                                                                 position={destinationLocation}
                                                                 icon={buildingLocationIcon} // Sử dụng biểu tượng tùy chỉnh cho điểm đích
                                                                 />
-                                                                <MapWrapper />
+                                                                {/* <MapWrapper /> */}
+                                                                <MapWrapper destination={destinationLocation} userLocation={userLocation} />
                                                             </>
                                                         ) : (
                                                             <ShowMapWrapper />
@@ -956,7 +1029,8 @@ const BuildingScreen = () => {
                                                         {destinationLocationUpdate && (
                                                             <Marker position={destinationLocationUpdate} icon={buildingLocationIcon} />
                                                         )}
-                                                        <MapWrapperUpdate />
+                                                        {/* <MapWrapperUpdate /> */}
+                                                        <MapWrapperUpdate destination={destinationLocationUpdate} userLocation={userLocation} />
                                                     </MapContainer>
                                                 </div>
                                                 <div className='col-8'>
