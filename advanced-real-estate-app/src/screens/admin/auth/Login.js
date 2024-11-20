@@ -20,6 +20,7 @@ const Login = () => {
         try {
             const res = await handleAPI(api, values, "post");
             console.log(res);
+            
             if (res.code === 1000) {
                 message.success("Đã đăng nhập thành công!");
                 // Lưu thông tin xác thực vào localStorage
@@ -27,27 +28,15 @@ const Login = () => {
                     token: res?.result?.login?.token,
                     roles: res?.result?.infoUser?.roles,
                     info: res?.result?.infoUser,
-                    // sau lau từ api về bỏ vào
-                    permission : [
-                        '/admin',
-                        '/admin/chat',
-                        '/admin/room-chat',
-                        '/admin/user',
-                        '/admin/building',
-                        '/admin/service',
-                        '/admin/map',
-                        '/admin/auction',
-                        '/admin/type-building',
-                        '/admin/device',
-                        '/admin/category',
-                        '/admin/contract-detail',
-                    ]
-                    // Lưu role vào auth (admin hoặc client)
+                    permission : res?.result?.infoUser?.permission
                 };
                 // Dispatch action để lưu vào Redux store
                 dispatch(addAuth(authData));
                 // Điều hướng về trang /admin ngay lập tức
                 navigate("/admin");
+            }
+            if(res.code === 404) {
+                message.error(res.message);
             }
         } catch (error) {
             navigate("/admin/login");

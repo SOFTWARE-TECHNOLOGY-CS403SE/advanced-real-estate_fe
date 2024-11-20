@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Khởi tạo state ban đầu
 const initialState = {
     token: '', // Token người dùng sau khi đăng nhập
-    roles: [], // Vai trò của người dùng ('admin' hoặc 'client')
+    roles: '', // Vai trò của người dùng ('admin' hoặc 'client')
     info: {},
     permission : [],
 };
