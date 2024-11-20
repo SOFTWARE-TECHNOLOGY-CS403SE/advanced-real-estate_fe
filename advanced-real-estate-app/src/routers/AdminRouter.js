@@ -97,9 +97,7 @@ function AdminRouter() {
     }
     // Nếu K phải là role ADMIN thì đá về đăng nhập
     if(auth?.roles){
-        const hasRequiredRole = auth.roles
-            .some(role => listRoleRequireForManagerPage
-            .includes(role.name));
+        const hasRequiredRole = listRoleRequireForManagerPage.includes(auth.roles)
         if(!hasRequiredRole){
             return <Login />;
         }
